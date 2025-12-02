@@ -29,3 +29,22 @@ def test_rate_limit_spaces_calls(monkeypatch):
     http._wait("h.test")
     http._wait("h.test")
     assert time.monotonic() - t0 >= 0.19
+
+
+def test_json_body_and_auth_not_in_cache_key(monkeypatch):
+    http = Http(cache=Cache(":memory:"))
+    seen = []
+
+    class Resp:
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+        def read(self): return b"[]"
+
+    def fake_urlopen(req, timeout):
+        seen.append((req.data, req.get_header("Content-type")))
+        return Resp()
+
+    monkeypatch.setattr("urllib.request.urlopen", fake_urlopen)
+    http.fetch("https://api.test/x", json_body={"a": 1}, headers={"Authorization": "Bearer one"})
+    http.fetch("https://api.test/x", json_body={"a": 1}, headers={"Authorization": "Bearer two"})
+    assert seen == [(b'{"a": 1}', "application/json")]
