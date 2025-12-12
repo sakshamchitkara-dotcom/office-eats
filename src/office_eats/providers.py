@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import urllib.parse
 from typing import Protocol
 
 from . import overpass
@@ -79,7 +80,80 @@ class GooglePlacesProvider:
         )
 
 
-REGISTRY: dict[str, type] = {"osm": OSMProvider, "google": GooglePlacesProvider}
+YELP_KIND = {"cafes": "cafe", "coffee": "cafe", "hotdogs": "fast_food", "foodcourt": "food_court", "pubs": "pub"}
+YELP_DIET = {"vegan": "vegan", "vegetarian": "vegetarian", "halal": "halal", "kosher": "kosher", "gluten_free": "gluten_free"}
+
+
+class YelpProvider:
+    """Yelp Fusion business search (official API, not scraping). Requires YELP_API_KEY."""
+
+    name = "yelp"
+    URL = "https://api.yelp.com/v3/businesses/search"
+
+    def __init__(self, http: Http):
+        self.http, self.key = http, _key("YELP_API_KEY")
+
+    def nearby(self, lat: float, lon: float, radius_m: int) -> list[Venue]:
+        params = urllib.parse.urlencode({"latitude": lat, "longitude": lon, "radius": min(radius_m, 40000),
+                                         "categories": "restaurants,cafes", "limit": 50, "sort_by": "best_match"})
+        data = self.http.fetch(f"{self.URL}?{params}", headers={"Authorization": f"Bearer {self.key}"}, ttl=86400)
+        return [self._venue(b) for b in data.get("businesses", [])]
+
+    @staticmethod
+    def _venue(b: dict) -> Venue:
+        cats = [c["alias"] for c in b.get("categories", [])]
+        tx = set(b.get("transactions", []))
+        tags = {"takeaway": "yes"} if "pickup" in tx else {}
+        if "delivery" in tx:
+            tags["delivery"] = "yes"
+        if "catering" in cats:
+            tags["catering"] = "yes"
+        return Venue(
+            id=f"yelp:{b['id']}", name=b["name"],
+            lat=b["coordinates"]["latitude"], lon=b["coordinates"]["longitude"],
+            kind=next((YELP_KIND[c] for c in cats if c in YELP_KIND), "restaurant"),
+            cuisine=[c for c in cats if c not in YELP_KIND and c not in YELP_DIET and c != "catering"],
+            diets={YELP_DIET[c] for c in cats if c in YELP_DIET},
+            address=", ".join(b.get("location", {}).get("display_address", [])) or None,
+            phone=b.get("display_phone") or None,
+            price_level=len(b["price"]) if b.get("price") else None, rating=b.get("rating"),
+            tags=tags, source="yelp",
+        )
+
+
+class FoursquareProvider:
+    """Foursquare Places API search. Requires FOURSQUARE_API_KEY (service key)."""
+
+    name = "foursquare"
+    URL = "https://places-api.foursquare.com/places/search"
+    VERSION = "2025-06-17"
+
+    def __init__(self, http: Http):
+        self.http, self.key = http, _key("FOURSQUARE_API_KEY")
+
+    def nearby(self, lat: float, lon: float, radius_m: int) -> list[Venue]:
+        params = urllib.parse.urlencode({"ll": f"{lat},{lon}", "radius": min(radius_m, 100000),
+                                         "query": "restaurant", "limit": 50})
+        data = self.http.fetch(f"{self.URL}?{params}", ttl=86400, headers={
+            "Authorization": f"Bearer {self.key}", "X-Places-Api-Version": self.VERSION, "Accept": "application/json"})
+        return [self._venue(r) for r in data.get("results", [])]
+
+    @staticmethod
+    def _venue(r: dict) -> Venue:
+        cats = [c.get("name", "").lower() for c in r.get("categories", [])]
+        kind = "cafe" if any("caf" in c or "coffee" in c for c in cats) else \
+            "fast_food" if any("fast food" in c for c in cats) else "restaurant"
+        return Venue(
+            id=f"foursquare:{r['fsq_place_id']}", name=r["name"], lat=r["latitude"], lon=r["longitude"], kind=kind,
+            cuisine=[c.removesuffix(" restaurant") for c in cats if c.endswith("restaurant")],
+            diets={d for d in ("vegan", "vegetarian", "halal", "kosher") if any(d in c for c in cats)},
+            website=r.get("website"), phone=r.get("tel"),
+            address=r.get("location", {}).get("formatted_address"), source="foursquare",
+        )
+
+
+REGISTRY: dict[str, type] = {"osm": OSMProvider, "google": GooglePlacesProvider, "yelp": YelpProvider,
+                             "foursquare": FoursquareProvider}
 
 
 def get_provider(name: str, http: Http) -> Provider:
