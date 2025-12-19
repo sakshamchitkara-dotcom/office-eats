@@ -20,22 +20,26 @@ def user_agent() -> str:
 
 
 class HttpError(RuntimeError):
-    pass
+    def __init__(self, msg: str, status: int | None = None):
+        super().__init__(msg)
+        self.status = status
 
 
 class Http:
     """GET/POST JSON with caching and a minimum interval between calls to the same host."""
 
-    def __init__(self, cache: Cache | None = None, min_interval: dict[str, float] | None = None, timeout: float = 60):
+    def __init__(self, cache: Cache | None = None, min_interval: dict[str, float] | None = None,
+                 timeout: float = 60, default_interval: float = 0.5):
         self.cache = cache
         # Nominatim policy: max 1 req/s. Overpass: be gentle too.
         self.min_interval = {"nominatim.openstreetmap.org": 1.1, "overpass-api.de": 2.0, **(min_interval or {})}
         self.timeout = timeout
+        self.default_interval = default_interval
         self._last: dict[str, float] = {}
         self._lock = threading.Lock()
 
     def _wait(self, host: str) -> None:
-        gap = self.min_interval.get(host, 0.0)
+        gap = self.min_interval.get(host, self.default_interval)
         with self._lock:  # ponytail: global lock, fine for a CLI; per-host locks if this ever runs concurrently
             delay = self._last.get(host, 0.0) + gap - time.monotonic()
             if delay > 0:
@@ -63,7 +67,7 @@ class Http:
             with urllib.request.urlopen(req, timeout=self.timeout) as resp:
                 raw = resp.read().decode("utf-8", "replace")
         except OSError as e:  # URLError/HTTPError/timeouts are all OSError subclasses
-            raise HttpError(f"{host}: {e}") from e
+            raise HttpError(f"{host}: {e}", getattr(e, "code", None)) from e
         value = json.loads(raw) if parse_json else raw
         if self.cache and ttl > 0:
             self.cache.set(key, value, ttl)
