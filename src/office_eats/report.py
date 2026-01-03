@@ -11,6 +11,13 @@ from .scoring import PROFILES
 OPEN = {True: "yes", False: "no", None: "?"}
 
 
+def safe_url(url: str | None) -> str | None:
+    """Only ever link http(s): OSM tags are user-editable and could hold javascript: URLs."""
+    if url and url.strip().lower().startswith(("http://", "https://")):
+        return url.strip()
+    return None
+
+
 def _price(level: int | None) -> str:
     return "$" * level if level else "?"
 
@@ -55,10 +62,10 @@ def markdown(r: Result) -> str:
         if v.opening_hours:
             out.append(f"- Hours: `{v.opening_hours}` (open at requested time: {OPEN[v.open_now]})")
         links = [f"[OpenStreetMap]({osm_link(v)})"]
-        if v.website:
-            links.append(f"[website]({v.website})")
-        if v.menu_url:
-            links.append(f"[menu]({v.menu_url})")
+        if site := safe_url(v.website):
+            links.append(f"[website](<{site}>)")
+        if menu := safe_url(v.menu_url):
+            links.append(f"[menu](<{menu}>)")
         out.append("- " + " · ".join(links))
         out.append(f"- Why: {s.blurb or '; '.join(s.reasons)}")
         out.append("")
@@ -72,10 +79,10 @@ def to_html(r: Result) -> str:
     for i, s in enumerate(r.items, 1):
         v = s.venue
         links = [f'<a href="{e(osm_link(v))}">map</a>']
-        if v.website:
-            links.append(f'<a href="{e(v.website)}" rel="nofollow">site</a>')
-        if v.menu_url:
-            links.append(f'<a href="{e(v.menu_url)}" rel="nofollow">menu</a>')
+        if site := safe_url(v.website):
+            links.append(f'<a href="{e(site)}" rel="nofollow">site</a>')
+        if menu := safe_url(v.menu_url):
+            links.append(f'<a href="{e(menu)}" rel="nofollow">menu</a>')
         rows.append(
             f"<tr><td>{i}</td><td>{s.score:.0f}</td><td><strong>{e(v.name)}</strong><br><small>{e(s.blurb or '; '.join(s.reasons))}</small></td>"
             f"<td>{e(', '.join(v.cuisine[:3]) or v.kind)}</td><td>{v.walk_min:.0f} min</td><td>{_price(v.price_level)}</td>"
