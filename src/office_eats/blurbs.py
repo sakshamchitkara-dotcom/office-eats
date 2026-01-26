@@ -42,23 +42,22 @@ SYSTEM = (
 )
 
 
-def _schema(n: int) -> dict:
-    return {
-        "type": "object",
-        "properties": {
-            "picks": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {"id": {"type": "string"}, "blurb": {"type": "string"}},
-                    "required": ["id", "blurb"],
-                    "additionalProperties": False,
-                },
+SCHEMA = {
+    "type": "object",
+    "properties": {
+        "picks": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {"id": {"type": "string"}, "blurb": {"type": "string"}},
+                "required": ["id", "blurb"],
+                "additionalProperties": False,
             },
         },
-        "required": ["picks"],
-        "additionalProperties": False,
-    }
+    },
+    "required": ["picks"],
+    "additionalProperties": False,
+}
 
 
 def _candidate(s: Scored) -> dict:
@@ -81,7 +80,7 @@ def claude_shortlist(items: list[Scored], request: dict, n: int, client=None) ->
     resp = client.messages.create(
         model=MODEL,
         max_tokens=4000,
-        output_config={"effort": "low", "format": {"type": "json_schema", "schema": _schema(n)}},
+        output_config={"effort": "low", "format": {"type": "json_schema", "schema": SCHEMA}},
         system=SYSTEM,
         messages=[{"role": "user", "content": json.dumps(payload, ensure_ascii=False)}],
     )

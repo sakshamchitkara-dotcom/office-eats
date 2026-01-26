@@ -1,9 +1,12 @@
 """End-to-end pipeline: geocode -> fetch -> enrich -> rank -> (menu links, blurbs)."""
 from __future__ import annotations
 
+import os
+import sys
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 
+from .blurbs import MODEL, apply_deterministic, claude_shortlist
 from .enrich import enrich
 from .geocode import geocode
 from .http import Http
@@ -29,6 +32,7 @@ class Query:
     limit: int = 8
     provider: str = "osm"
     menus: bool = False
+    llm: str = "auto"  # auto (use Claude if ANTHROPIC_API_KEY is set) | on | off
 
     def radius(self) -> int:
         if self.radius_m:
@@ -55,14 +59,27 @@ class Result:
                 "recommendations": [s.to_dict() for s in self.items]}
 
 
-def recommend(q: Query, http: Http) -> Result:
+def recommend(q: Query, http: Http, llm_client=None) -> Result:
     if q.use_case not in PROFILES:
         raise ValueError(f"use case must be one of {sorted(PROFILES)}")
     place = geocode(q.location, http, name=q.name)
     venues = get_provider(q.provider, http).nearby(place.lat, place.lon, q.radius())
     enrich(venues, place, q.when)
-    items = rank(venues, q.use_case, diets=q.diets, party=q.party, open_only=q.open_only,
-                 max_walk=q.max_walk, limit=q.limit)
+    use_llm = q.llm == "on" or (q.llm == "auto" and bool(os.environ.get("ANTHROPIC_API_KEY")))
+    # Give Claude a wider pool to choose from; the deterministic path just takes the top N.
+    pool = rank(venues, q.use_case, diets=q.diets, party=q.party, open_only=q.open_only,
+                max_walk=q.max_walk, limit=min(q.limit * 2, 20) if use_llm else q.limit)
+    items, source = pool[: q.limit], "deterministic"
+    if use_llm and pool:
+        request = {"use_case": PROFILES[q.use_case].label, "party": q.party or None, "diets": sorted(q.diets),
+                   "when": q.when.isoformat(timespec="minutes") if q.when else None, "office": place.name}
+        try:
+            items, source = claude_shortlist(pool, request, q.limit, client=llm_client), f"claude ({MODEL})"
+        except Exception as e:  # any failure (no SDK, auth, network, refusal, bad JSON) -> deterministic
+            print(f"office-eats: Claude unavailable, using deterministic blurbs ({type(e).__name__}: {e})", file=sys.stderr)
+            items = pool[: q.limit]
+    if source == "deterministic":
+        apply_deterministic(items, q.use_case)
     if q.menus:
         add_menu_links([s.venue for s in items], http)
-    return Result(q, place, items, candidates=len(venues))
+    return Result(q, place, items, candidates=len(venues), blurb_source=source)
