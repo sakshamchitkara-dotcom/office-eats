@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import argparse
+import csv
+import re
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -81,6 +83,45 @@ def cmd_recommend(a: argparse.Namespace) -> int:
     return 0
 
 
+def read_offices(path: str) -> list[dict]:
+    """CSV with a `name` column and either `address` or `lat`+`lon`. Optional per-row: use_case, diet, party."""
+    with open(path, newline="", encoding="utf-8-sig") as f:
+        rows = [{k.strip().lower(): (v or "").strip() for k, v in row.items() if k} for row in csv.DictReader(f)]
+    offices = []
+    for i, row in enumerate(rows, 2):
+        loc = row.get("address") or (f"{row['lat']},{row['lon']}" if row.get("lat") and row.get("lon") else "")
+        if not loc:
+            raise ValueError(f"{path}:{i}: need an address or lat+lon")
+        offices.append({**row, "location": loc, "name": row.get("name") or loc})
+    return offices
+
+
+def cmd_batch(a: argparse.Namespace) -> int:
+    http, failures = make_http(a), 0
+    out_dir = Path(a.out_dir) if a.out_dir else None
+    if out_dir:
+        out_dir.mkdir(parents=True, exist_ok=True)
+    ext = {"table": "txt", "md": "md", "html": "html", "json": "json"}[a.format]
+    for office in read_offices(a.csv):
+        q = make_query(a, office["location"], office["name"])
+        q.use_case = office.get("use_case") or q.use_case
+        q.diets = parse_diets(office.get("diet")) or q.diets
+        q.party = int(office.get("party") or q.party)
+        try:
+            text = report.FORMATS[a.format](recommend(q, http))
+        except (GeocodeError, ProviderError, HttpError, ValueError) as e:
+            failures += 1
+            print(f"office-eats: {office['name']}: {e}", file=sys.stderr)
+            continue
+        if out_dir:
+            path = out_dir / f"{re.sub(r'[^a-z0-9]+', '-', office['name'].lower()).strip('-') or 'office'}.{ext}"
+            path.write_text(text + "\n")
+            print(f"wrote {path}", file=sys.stderr)
+        else:
+            print(text, end="\n\n")
+    return 1 if failures else 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(prog="office-eats", description=__doc__)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -91,6 +132,12 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("-o", "--out", help="write to file instead of stdout")
     add_query_args(r)
     r.set_defaults(func=cmd_recommend)
+
+    b = sub.add_parser("batch", help="recommend places for every office in a CSV")
+    b.add_argument("csv", help="CSV with name + address (or lat, lon); optional use_case, diet, party columns")
+    b.add_argument("--out-dir", help="write one report per office into this directory")
+    add_query_args(b)
+    b.set_defaults(func=cmd_batch)
 
     c = sub.add_parser("clear-cache", help="delete cached API responses")
     c.set_defaults(func=lambda a: print(f"removed {Cache().clear()} entries") or 0)
