@@ -128,6 +128,13 @@ def cmd_batch(a: argparse.Namespace) -> int:
     return 1 if failures else 0
 
 
+def cmd_serve(a: argparse.Namespace) -> int:
+    from .server import serve  # imports cli helpers, so keep it lazy
+
+    serve(a.host, a.port, a.insecure)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(prog="office-eats", description=__doc__)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -145,6 +152,12 @@ def build_parser() -> argparse.ArgumentParser:
     b.add_argument("--out-dir", help="write one report per office into this directory")
     add_query_args(b)
     b.set_defaults(func=cmd_batch)
+
+    s = sub.add_parser("serve", help="run the Slack slash-command endpoint")
+    s.add_argument("--host", default="127.0.0.1")
+    s.add_argument("--port", type=int, default=8080)
+    s.add_argument("--insecure", action="store_true", help="skip Slack signature checks (local testing only)")
+    s.set_defaults(func=cmd_serve)
 
     c = sub.add_parser("clear-cache", help="delete cached API responses")
     c.set_defaults(func=lambda a: print(f"removed {Cache().clear()} entries") or 0)
