@@ -39,7 +39,7 @@ def table(r: Result) -> str:
     rows = [HEAD] + [_row(i, s) for i, s in enumerate(r.items, 1)]
     rows = [[c if len(c) <= 32 else c[:31] + "…" for c in row] for row in rows]
     widths = [max(len(row[i]) for row in rows) for i in range(len(HEAD))]
-    fmt = lambda row: "  ".join(c.ljust(w) for c, w in zip(row, widths)).rstrip()  # noqa: E731
+    fmt = lambda row: "  ".join(c.ljust(w) for c, w in zip(row, widths, strict=True)).rstrip()  # noqa: E731
     lines = [_title(r), f"{r.place.address or f'{r.place.lat:.5f},{r.place.lon:.5f}'}  ({r.candidates} candidates)", "",
              fmt(rows[0]), fmt(["-" * w for w in widths])] + [fmt(row) for row in rows[1:]]
     if not r.items:
