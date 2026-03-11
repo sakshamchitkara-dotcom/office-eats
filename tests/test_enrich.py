@@ -50,3 +50,13 @@ def test_group_size():
     assert group_size(Venue("n/1", "a", 0, 0, kind="cafe", cuisine=["bubble_tea"])) == 4
     big = Venue("way/1", "a", 0, 0, tags={"reservation": "yes", "outdoor_seating": "yes"})
     assert group_size(big) == 8 + 4 + 4 + 2
+
+
+def test_open_for_whole_visit():
+    from office_eats.enrich import open_for
+    hrs = "Mo-Su 11:30-19:30"
+    dinner = datetime(2026, 10, 1, 19, 0)
+    assert open_for(hrs, dinner) is True
+    assert open_for(hrs, dinner, stay_min=90) is False  # closes mid-meal
+    assert open_for(hrs, dinner, stay_min=30) is True  # 19:00-19:29
+    assert open_for(None, dinner, stay_min=90) is None

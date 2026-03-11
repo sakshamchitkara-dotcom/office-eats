@@ -1,7 +1,7 @@
 """Derive cuisine, dietary options, distance and open-now from raw provider data."""
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from . import hours
 from .models import Place, Venue, haversine_m, walk_minutes
@@ -26,7 +26,15 @@ def diets(tags: dict[str, str], cuisine: list[str]) -> set[str]:
     return out
 
 
-def enrich(venues: list[Venue], origin: Place, when: datetime | None = None) -> list[Venue]:
+def open_for(text: str | None, when: datetime, stay_min: int = 0) -> bool | None:
+    """Open for the whole visit: at arrival and still open just before leaving."""
+    start = hours.is_open(text, when)
+    if not start or stay_min <= 0:
+        return start
+    return hours.is_open(text, when + timedelta(minutes=stay_min - 1))
+
+
+def enrich(venues: list[Venue], origin: Place, when: datetime | None = None, stay_min: int = 0) -> list[Venue]:
     for v in venues:
         if not v.cuisine:
             v.cuisine = cuisines(v.tags)
@@ -38,7 +46,7 @@ def enrich(venues: list[Venue], origin: Place, when: datetime | None = None) -> 
         v.distance_m = haversine_m(origin.lat, origin.lon, v.lat, v.lon)
         v.walk_min = walk_minutes(v.distance_m)
         if when is not None:
-            v.open_now = hours.is_open(v.opening_hours, when)
+            v.open_now = open_for(v.opening_hours, when, stay_min)
     return venues
 
 

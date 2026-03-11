@@ -15,21 +15,22 @@ class Profile:
     walk_scale_min: float  # distance decay: score halves roughly every this many minutes
     price_target: int
     min_group: int
+    stay_min: int  # how long the visit lasts; a place closing mid-meal counts as closed
     weights: dict[str, float] = field(default_factory=dict)
 
 
 PROFILES: dict[str, Profile] = {
     "lunch": Profile("lunch", "Quick team lunch", {"restaurant": 1, "fast_food": 0.8, "food_court": 0.9, "cafe": 0.6, "pub": 0.6},
-                     walk_scale_min=8, price_target=1, min_group=6,
+                     walk_scale_min=8, price_target=1, min_group=6, stay_min=45,
                      weights={"distance": 35, "kind": 15, "price": 15, "group": 15, "open": 10, "quality": 10}),
     "dinner": Profile("dinner", "Client dinner", {"restaurant": 1, "pub": 0.4, "cafe": 0.1, "fast_food": 0.05, "food_court": 0.05},
-                      walk_scale_min=15, price_target=3, min_group=4,
+                      walk_scale_min=15, price_target=3, min_group=4, stay_min=90,
                       weights={"distance": 15, "kind": 25, "price": 25, "group": 10, "open": 10, "quality": 15}),
     "catering": Profile("catering", "Office catering", {"restaurant": 1, "fast_food": 0.8, "cafe": 0.6, "food_court": 0.5, "pub": 0.3},
-                        walk_scale_min=25, price_target=2, min_group=0,
+                        walk_scale_min=25, price_target=2, min_group=0, stay_min=0,
                         weights={"distance": 10, "kind": 10, "price": 10, "group": 0, "open": 10, "quality": 15, "catering": 45}),
     "coffee": Profile("coffee", "Coffee meeting", {"cafe": 1, "restaurant": 0.3, "fast_food": 0.3, "food_court": 0.2, "pub": 0.1},
-                      walk_scale_min=6, price_target=1, min_group=2,
+                      walk_scale_min=6, price_target=1, min_group=2, stay_min=30,
                       weights={"distance": 35, "kind": 35, "price": 5, "group": 5, "open": 10, "quality": 10}),
 }
 
@@ -76,9 +77,9 @@ def score(v: Venue, p: Profile, party: int = 0) -> Scored:
     if v.diets:
         reasons.append("/".join(sorted(v.diets)))
     if v.open_now is True:
-        reasons.append("open at requested time")
+        reasons.append("open for the whole visit")
     elif v.open_now is False:
-        reasons.append("closed at requested time")
+        reasons.append("closed (or closing) at requested time")
     if p.name == "catering" and parts["catering"] >= 0.6:
         reasons.append("catering/delivery/takeaway")
     if party and v.group_size >= party:

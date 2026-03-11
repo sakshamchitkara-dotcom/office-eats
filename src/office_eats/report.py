@@ -60,7 +60,7 @@ def markdown(r: Result) -> str:
         out.append(f"- {v.kind}, {', '.join(v.cuisine) or 'cuisine unknown'}, {_price(v.price_level)}, "
                    f"{v.walk_min:.0f} min walk ({v.distance_m:.0f} m)")
         if v.opening_hours:
-            out.append(f"- Hours: `{v.opening_hours}` (open at requested time: {OPEN[v.open_now]})")
+            out.append(f"- Hours: `{v.opening_hours}` (open for the visit: {OPEN[v.open_now]})")
         links = [f"[OpenStreetMap]({osm_link(v)})"]
         if site := safe_url(v.website):
             links.append(f"[website](<{site}>)")
