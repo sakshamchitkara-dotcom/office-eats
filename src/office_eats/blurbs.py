@@ -15,7 +15,7 @@ def deterministic_blurb(s: Scored, use_case: str) -> str:
     if v.open_now is True:
         bits.append("open when you need it")
     if v.diets:
-        bits.append(f"{'/'.join(sorted(v.diets))} options")
+        bits.append(f"{'/'.join(d.replace('_', '-') for d in sorted(v.diets))} options")
     if use_case == "catering" and v.tags.get("catering") == "yes":
         bits.append("does catering")
     elif use_case == "catering" and v.tags.get("delivery") == "yes":
