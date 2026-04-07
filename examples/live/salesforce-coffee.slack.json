@@ -1,0 +1,51 @@
+{
+  "text": "Coffee meeting near Salesforce Tower",
+  "blocks": [
+    {
+      "type": "header",
+      "text": {
+        "type": "plain_text",
+        "text": "Coffee meeting near Salesforce Tower"
+      }
+    },
+    {
+      "type": "context",
+      "elements": [
+        {
+          "type": "mrkdwn",
+          "text": "219 candidates · blurbs: deterministic"
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*1. Andytown Coffee Roasters*  ·  88/100  ·  2 min walk\nBudget-friendly coffee shop café, 2 min on foot; open when you need it.\n<https://www.openstreetmap.org/node/11280241388|map> · <https://www.andytownsf.com|site>"
+      }
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*2. ¡Venga! Empanadas*  ·  88/100  ·  2 min walk\nBudget-friendly argentinian café, 2 min on foot; open when you need it.\n<https://www.openstreetmap.org/way/1213210760|map> · <https://www.vengaempanadas.com/|site>"
+      }
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*3. Estas Manos Coffee Roasters*  ·  87/100  ·  1 min walk\nBudget-friendly coffee shop café, 1 min on foot; open when you need it.\n<https://www.openstreetmap.org/node/6582592271|map>"
+      }
+    },
+    {
+      "type": "context",
+      "elements": [
+        {
+          "type": "mrkdwn",
+          "text": "Data © OpenStreetMap contributors, ODbL"
+        }
+      ]
+    }
+  ]
+}

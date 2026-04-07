@@ -1,0 +1,13 @@
+Quick team lunch near Adobe HQ
+345, Park Avenue, Buena Vista, San Jose, Santa Clara County, California, 95110, United States  (100 candidates)
+
+#  Score  Name                     Kind        Cuisine                 Walk  $   Diet                    Open
+-  -----  -----------------------  ----------  ----------------------  ----  --  ----------------------  ----
+1  72     Grace Deli & Cafe        fast_food   sandwich                5m    $   -                       ?
+2  71     iJAVA Cafe               cafe        coffee_shop, breakfast  6m    $   halal/vegan/vegetarian  yes
+3  70     El Jalapeño Rojo         restaurant  mexican                 4m    $$  -                       ?
+4  68     Dac Phuc                 restaurant  vietnamese              9m    $$  -                       yes
+5  67     Palettes                 fast_food   -                       4m    $   -                       ?
+6  67     Angkor Chef              restaurant  cambodian               12m   $$  vegan/vegetarian        yes
+7  67     Angelou’s Mexican Grill  restaurant  mexican                 12m   $$  -                       yes
+8  66     Kukar’s House of Pizza   restaurant  pizza                   11m   $   -                       ?
