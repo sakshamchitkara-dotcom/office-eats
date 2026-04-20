@@ -40,7 +40,7 @@ def table(r: Result) -> str:
     rows = [[c if len(c) <= 32 else c[:31] + "…" for c in row] for row in rows]
     widths = [max(len(row[i]) for row in rows) for i in range(len(HEAD))]
     fmt = lambda row: "  ".join(c.ljust(w) for c, w in zip(row, widths, strict=True)).rstrip()  # noqa: E731
-    lines = [_title(r), f"{r.place.address or f'{r.place.lat:.5f},{r.place.lon:.5f}'}  ({r.candidates} candidates)", "",
+    lines = [_title(r), f"{r.place.address or f'{r.place.lat:.5f},{r.place.lon:.5f}'}  ({r.candidates} candidates, walk: {r.walk_source})", "",
              fmt(rows[0]), fmt(["-" * w for w in widths])] + [fmt(row) for row in rows[1:]]
     if not r.items:
         lines.append("(no matches: try a larger radius or fewer constraints)")
@@ -50,7 +50,7 @@ def table(r: Result) -> str:
 def markdown(r: Result) -> str:
     out = [f"# {_title(r)}", "", f"Office: {r.place.address or r.place.name} "
            f"([map](https://www.openstreetmap.org/?mlat={r.place.lat:.6f}&mlon={r.place.lon:.6f}#map=17/{r.place.lat:.6f}/{r.place.lon:.6f}))",
-           f"Candidates considered: {r.candidates}. Blurbs: {r.blurb_source}.", ""]
+           f"Candidates considered: {r.candidates}. Blurbs: {r.blurb_source}. Walking times: {r.walk_source}.", ""]
     if r.query.diets:
         out.insert(3, f"Dietary filter: {', '.join(sorted(r.query.diets))}")
     for i, s in enumerate(r.items, 1):
@@ -97,7 +97,7 @@ small{{color:#555}}a{{color:#0b57d0}}
 @media (prefers-color-scheme:dark){{body{{background:#161617;color:#eee}}small{{color:#aaa}}td,th{{border-color:#333}}a{{color:#8ab4f8}}}}
 </style></head><body>
 <h1>{e(_title(r))}</h1>
-<p>{e(r.place.address or r.place.name)} · {r.candidates} candidates · blurbs: {e(r.blurb_source)}</p>
+<p>{e(r.place.address or r.place.name)} · {r.candidates} candidates · blurbs: {e(r.blurb_source)} · walking: {e(r.walk_source)}</p>
 <table><thead><tr><th>#</th><th>Score</th><th>Place</th><th>Cuisine</th><th>Walk</th><th>$</th><th>Diet</th><th>Open</th><th>Links</th></tr></thead>
 <tbody>
 {chr(10).join(rows)}

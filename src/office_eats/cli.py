@@ -16,6 +16,7 @@ from .geocode import GeocodeError
 from .http import Http, HttpError
 from .providers import REGISTRY, ProviderError
 from .recommend import Query, recommend
+from .routing import ENGINES as ROUTING_ENGINES
 from .scoring import PROFILES
 from .slack import post_webhook, to_slack
 
@@ -61,6 +62,8 @@ def add_query_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--provider", choices=sorted(REGISTRY), default="osm")
     p.add_argument("--menus", action="store_true", help="look for menu links on venue websites (robots.txt respected)")
     p.add_argument("--llm", choices=["auto", "on", "off"], default="auto")
+    p.add_argument("--routing", choices=ROUTING_ENGINES, default="none",
+                   help="walking times: straight-line x1.3 (none), OSRM foot server, or OpenRouteService (ORS_API_KEY)")
     p.add_argument("-f", "--format", choices=sorted(FORMATS), default="table")
     p.add_argument("--no-cache", action="store_true")
 
@@ -68,7 +71,7 @@ def add_query_args(p: argparse.ArgumentParser) -> None:
 def make_query(a: argparse.Namespace, location: str, name: str | None = None) -> Query:
     return Query(location=location, name=name, use_case=a.use_case, radius_m=a.radius, max_walk=a.max_walk,
                  diets=a.diet, party=a.party, when=parse_when(a.when), open_only=a.open_only, limit=a.limit,
-                 provider=a.provider, menus=a.menus, llm=a.llm)
+                 provider=a.provider, menus=a.menus, llm=a.llm, routing=a.routing)
 
 
 def make_http(a: argparse.Namespace) -> Http:

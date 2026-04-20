@@ -33,7 +33,8 @@ class Http:
                  timeout: float = 60, default_interval: float = 0.5, retries: int = 2, backoff: float = 5.0):
         self.cache = cache
         # Nominatim policy: max 1 req/s. Overpass: be gentle too.
-        self.min_interval = {"nominatim.openstreetmap.org": 1.1, "overpass-api.de": 2.0, **(min_interval or {})}
+        self.min_interval = {"nominatim.openstreetmap.org": 1.1, "overpass-api.de": 2.0, "routing.openstreetmap.de": 1.1,
+                             **(min_interval or {})}
         self.timeout = timeout
         self.default_interval = default_interval
         self.retries, self.backoff = retries, backoff
