@@ -13,6 +13,7 @@ from .http import Http
 from .models import WALK_M_PER_MIN, Place
 from .providers import get_provider
 from .routing import apply_routing
+from .tz import office_tz, parse_when, to_office_time
 from .scoring import PROFILES, Scored, rank
 from .websites import add_menu_links
 
@@ -28,7 +29,9 @@ class Query:
     max_walk: float | None = None
     diets: set[str] = field(default_factory=set)
     party: int = 0
-    when: datetime | None = None
+    when: datetime | None = None  # naive = office-local; aware values are converted
+    at: str | None = None  # 'now' / 'fri 19:00' / ISO, resolved against the office's local clock
+    tz: str | None = None  # IANA override; otherwise looked up from the coordinates
     open_only: bool = False
     limit: int = 8
     provider: str = "osm"
@@ -52,13 +55,14 @@ class Result:
     candidates: int
     blurb_source: str = "deterministic"
     walk_source: str = "straight-line x1.3"
+    timezone: str | None = None
 
     def to_dict(self) -> dict:
         q = asdict(self.query)
         q["diets"] = sorted(self.query.diets)
         q["when"] = self.query.when.isoformat() if self.query.when else None
         return {"query": q, "use_case_label": PROFILES[self.query.use_case].label, "place": asdict(self.place),
-                "candidates": self.candidates, "blurb_source": self.blurb_source, "walk_source": self.walk_source,
+                "candidates": self.candidates, "blurb_source": self.blurb_source, "walk_source": self.walk_source, "timezone": self.timezone,
                 "recommendations": [s.to_dict() for s in self.items]}
 
 
@@ -66,6 +70,14 @@ def recommend(q: Query, http: Http, llm_client=None) -> Result:
     if q.use_case not in PROFILES:
         raise ValueError(f"use case must be one of {sorted(PROFILES)}")
     place = geocode(q.location, http, name=q.name)
+    zone = None
+    if q.at or q.when or q.tz:  # only look the zone up when a time matters
+        zone = office_tz(place.lat, place.lon, http, q.tz)
+        local_now = datetime.now(zone).replace(tzinfo=None) if zone else datetime.now()
+        if q.at:
+            q.when = parse_when(q.at, now=local_now)
+        if q.when:
+            q.when = to_office_time(q.when, zone)
     venues = get_provider(q.provider, http).nearby(place.lat, place.lon, q.radius())
     enrich(venues, place, q.when, PROFILES[q.use_case].stay_min)
     walk_source = apply_routing(venues, place, http, q.routing)
@@ -86,4 +98,5 @@ def recommend(q: Query, http: Http, llm_client=None) -> Result:
         apply_deterministic(items, q.use_case)
     if q.menus:
         add_menu_links([s.venue for s in items], http)
-    return Result(q, place, items, candidates=len(venues), blurb_source=source, walk_source=walk_source)
+    return Result(q, place, items, candidates=len(venues), blurb_source=source, walk_source=walk_source,
+                  timezone=str(zone) if zone else None)

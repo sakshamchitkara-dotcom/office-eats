@@ -53,6 +53,8 @@ def markdown(r: Result) -> str:
            f"Candidates considered: {r.candidates}. Blurbs: {r.blurb_source}. Walking times: {r.walk_source}.", ""]
     if r.query.diets:
         out.insert(3, f"Dietary filter: {', '.join(sorted(r.query.diets))}")
+    if r.query.when:
+        out.insert(3, f"Visit time: {r.query.when:%a %Y-%m-%d %H:%M} ({r.timezone or 'local time'})")
     for i, s in enumerate(r.items, 1):
         v = s.venue
         md_name = v.name.replace("[", "\\[").replace("]", "\\]")
