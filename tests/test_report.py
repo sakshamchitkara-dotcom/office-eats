@@ -49,3 +49,12 @@ def test_non_http_links_dropped():
     r = Result(Query("0,0"), Place("HQ", 0, 0), [Scored(v, 50, [])], 1)
     for out in (report.to_html(r), report.markdown(r)):
         assert "javascript:" not in out and "https://ok.test/menu" in out
+
+
+def test_guessed_prices_are_flagged():
+    guess = Venue("node/1", "g", 0, 0, price_level=2, price_source="guess")
+    known = Venue("node/2", "k", 0, 0, price_level=3, price_source="provider")
+    r = Result(Query("0,0"), Place("HQ", 0, 0), [Scored(guess, 50, []), Scored(known, 40, [])], 2)
+    rows = report.table(r).splitlines()
+    assert " ~$$ " in rows[-2] and " $$$ " in rows[-1] and "~$$$" not in rows[-1]
+    assert "Prices marked ~ are guesses" in report.markdown(r)

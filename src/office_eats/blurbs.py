@@ -10,7 +10,10 @@ def deterministic_blurb(s: Scored, use_case: str) -> str:
     v = s.venue
     kind = {"fast_food": "counter-service spot", "cafe": "café", "food_court": "food hall", "pub": "pub"}.get(v.kind, "restaurant")
     cuisine = v.cuisine[0].replace("_", " ") if v.cuisine else ""
-    head = f"{PRICE_WORD.get(v.price_level or 2, 'Mid-priced')} {cuisine} {kind}".replace("  ", " ")
+    price = PRICE_WORD.get(v.price_level or 2, "Mid-priced")
+    if v.price_source == "guess":
+        price = f"Probably {price.lower()}"
+    head = f"{price} {cuisine} {kind}".replace("  ", " ")
     bits = [f"{head}, {v.walk_min:.0f} min on foot"]
     if v.open_now is True:
         bits.append("open when you need it")
@@ -63,7 +66,8 @@ SCHEMA = {
 def _candidate(s: Scored) -> dict:
     v = s.venue
     return {"id": v.id, "name": v.name, "kind": v.kind, "cuisine": v.cuisine, "diets": sorted(v.diets),
-            "price_level": v.price_level, "walk_min": round(v.walk_min, 1), "open_at_requested_time": v.open_now,
+            "price_level": v.price_level, "price_is_guess": v.price_source == "guess",
+            "walk_min": round(v.walk_min, 1), "open_at_requested_time": v.open_now,
             "opening_hours": v.opening_hours, "approx_group_size": v.group_size, "rating": v.rating,
             "takeaway": v.tags.get("takeaway"), "delivery": v.tags.get("delivery"), "catering": v.tags.get("catering"),
             "outdoor_seating": v.tags.get("outdoor_seating"), "score": round(s.score, 1), "reasons": s.reasons}

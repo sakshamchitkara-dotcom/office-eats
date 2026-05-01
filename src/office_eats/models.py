@@ -33,6 +33,7 @@ class Venue:
     phone: str | None = None
     address: str | None = None
     price_level: int | None = None  # 1 ($) .. 4 ($$$$)
+    price_source: str | None = None  # provider | tag | brand | keyword | guess (guess = low confidence)
     rating: float | None = None  # 0..5 when a provider supplies one
     tags: dict[str, str] = field(default_factory=dict)
     source: str = "osm"

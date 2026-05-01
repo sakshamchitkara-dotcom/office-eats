@@ -20,3 +20,8 @@ def test_catering_blurb_and_apply():
 def test_diet_names_are_readable():
     v = Venue("node/1", "X", 0, 0, diets={"gluten_free"}, walk_min=2)
     assert "gluten-free options" in deterministic_blurb(Scored(v, 50, []), "lunch")
+
+
+def test_guessed_price_is_hedged():
+    v = Venue("node/1", "X", 0, 0, price_level=3, price_source="guess", walk_min=2)
+    assert deterministic_blurb(Scored(v, 50, []), "dinner").startswith("Probably upscale restaurant")
