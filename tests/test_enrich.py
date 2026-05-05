@@ -39,6 +39,15 @@ def test_price_hint():
     assert price_hint(Venue("n/1", "a", 0, 0, cuisine=["italian"])) == (2, "guess")
 
 
+def test_brand_price_beats_kind_heuristic():
+    from office_eats.enrich import price_hint
+    steak = Venue("n/1", "Ruth\u2019s Chris Steak House", 0, 0, kind="restaurant")
+    assert price_hint(steak) == (4, "brand")
+    sg = Venue("n/2", "Sweetgreen Santana Row", 0, 0, kind="fast_food", tags={"brand": "Sweetgreen"})
+    assert price_hint(sg) == (2, "brand")  # brand tag wins over the "fast_food = $" rule
+    assert price_hint(Venue("n/3", "Starbucks", 0, 0, kind="cafe")) == (1, "brand")
+
+
 def test_provider_price_wins():
     v = Venue("n/1", "a", 0, 0, kind="fast_food", price_level=3)
     enrich([v], Place("o", 0, 0))
