@@ -70,3 +70,19 @@ def test_open_for_whole_visit():
     assert open_for(hrs, dinner, stay_min=90) is False  # closes mid-meal
     assert open_for(hrs, dinner, stay_min=30) is True  # 19:00-19:29
     assert open_for(None, dinner, stay_min=90) is None
+
+
+def test_name_overrides_fix_kind_and_price():
+    caviar = Venue("node/1", "Petrossian Caviar Bar", 0, 0, kind="cafe")
+    boba = Venue("node/2", "Tea Top Boba", 0, 0, kind="restaurant", cuisine=["taiwanese"])
+    chain = Venue("node/3", "Morton's The Steakhouse", 0, 0, kind="restaurant")
+    enrich([caviar, boba, chain], Place("o", 0, 0))
+    assert (caviar.kind, caviar.price_level, caviar.price_source) == ("restaurant", 4, "keyword")
+    assert (boba.kind, boba.price_level, boba.price_source) == ("restaurant", 1, "keyword")
+    assert (chain.price_level, chain.price_source) == (4, "brand")  # brand is more specific than "steakhouse"
+
+
+def test_name_override_leaves_provider_kind_alone():
+    v = Venue("g/1", "Caviar Kaspia", 0, 0, kind="cafe", source="google", price_level=2)
+    enrich([v], Place("o", 0, 0))
+    assert (v.kind, v.price_level) == ("cafe", 2)

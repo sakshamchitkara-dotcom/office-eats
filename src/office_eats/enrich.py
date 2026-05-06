@@ -1,6 +1,7 @@
 """Derive cuisine, dietary options, distance and open-now from raw provider data."""
 from __future__ import annotations
 
+import re
 from datetime import datetime, timedelta
 
 from . import hours
@@ -40,6 +41,8 @@ def enrich(venues: list[Venue], origin: Place, when: datetime | None = None, sta
             v.cuisine = cuisines(v.tags)
         v.diets |= diets(v.tags, v.cuisine)
         v.menu_url = v.menu_url or v.tags.get("website:menu")
+        if v.source == "osm" and (fix := name_override(v.name)) and fix[0]:
+            v.kind = fix[0]  # e.g. a caviar bar mapped as amenity=cafe
         if v.price_level is None:
             v.price_level, v.price_source = price_hint(v)
         elif v.price_source is None:
@@ -82,6 +85,18 @@ def _brand_key(text: str | None) -> str:
     return (text or "").strip().lower().replace("\u2019", "'")
 
 
+# Names that give away what OSM's amenity/cuisine tags miss: (pattern, corrected kind or None, price level).
+NAME_OVERRIDES = [
+    (re.compile(r"\b(caviar|omakase|kaiseki|tasting menu|champagne bar)\b", re.I), "restaurant", 4),
+    (re.compile(r"\b(steak ?house|chop ?house|oyster bar|wine bar|raw bar)\b", re.I), "restaurant", 3),
+    (re.compile(r"\b(taqueria|deli|bagels?|donuts?|boba|bubble tea|food truck|noodle bar)\b", re.I), None, 1),
+]
+
+
+def name_override(name: str) -> tuple[str | None, int] | None:
+    return next(((kind, price) for rx, kind, price in NAME_OVERRIDES if rx.search(name)), None)
+
+
 def price_hint(v: Venue) -> tuple[int, str]:
     """(level 1-4, source). Source 'guess' means cuisine/kind heuristics only: low confidence."""
     if v.tags.get("price_range", "").count("$"):  # rare but explicit, e.g. "$$$"
@@ -89,6 +104,8 @@ def price_hint(v: Venue) -> tuple[int, str]:
     for key in (_brand_key(v.tags.get("brand")), _brand_key(v.name)):
         if key in BRAND_PRICE:
             return BRAND_PRICE[key], "brand"
+    if fix := name_override(v.name):
+        return fix[1], "keyword"
     if v.kind in SNACK_KINDS or set(v.cuisine) & CHEAP:
         return 1, "guess"
     if set(v.cuisine) & PRICEY or v.tags.get("reservation") in ("yes", "required", "recommended"):
