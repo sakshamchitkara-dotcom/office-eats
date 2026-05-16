@@ -12,6 +12,7 @@ import pytest
 
 from conftest import load
 from office_eats import server
+from office_eats.store import Store
 
 SECRET = "s3cret"
 
@@ -47,14 +48,15 @@ def running(fake_http, monkeypatch):
         def __init__(self, target, args, daemon): self.t, self.a = target, args
         def start(self): self.t(*self.a)
 
-    httpd = ThreadingHTTPServer(("127.0.0.1", 0), server.make_handler(SECRET, http, worker=Inline))
+    store = Store(":memory:")
+    httpd = ThreadingHTTPServer(("127.0.0.1", 0), server.make_handler(SECRET, http, worker=Inline, store=store))
     threading.Thread(target=httpd.serve_forever, daemon=True).start()
-    yield f"http://127.0.0.1:{httpd.server_port}", posted
+    yield f"http://127.0.0.1:{httpd.server_port}", posted, store
     httpd.shutdown()
 
 
-def post(base, body: bytes, headers):
-    req = urllib.request.Request(base + "/slack/command", data=body, headers=headers)
+def post(base, body: bytes, headers, path="/slack/command"):
+    req = urllib.request.Request(base + path, data=body, headers=headers)
     try:
         with urllib.request.urlopen(req) as r:
             return r.status, json.loads(r.read())
@@ -63,13 +65,13 @@ def post(base, body: bytes, headers):
 
 
 def test_rejects_bad_signature(running):
-    base, posted = running
+    base, posted, _ = running
     status, _ = post(base, b"text=lunch+1,1", {"X-Slack-Request-Timestamp": str(int(time.time())), "X-Slack-Signature": "v0=bad"})
     assert status == 401 and posted == []
 
 
 def test_signed_command_acks_then_replies(running):
-    base, posted = running
+    base, posted, _ = running
     body = urllib.parse.urlencode({"text": "coffee 345 Park Ave, San Jose", "response_url": "https://hooks.slack.com/commands/X"}).encode()
     ts = int(time.time())
     status, ack = post(base, body, {"X-Slack-Request-Timestamp": str(ts), "X-Slack-Signature": sign(body, ts)})
@@ -77,3 +79,34 @@ def test_signed_command_acks_then_replies(running):
     url, payload = posted[0]
     assert url == "https://hooks.slack.com/commands/X" and payload["response_type"] == "in_channel"
     assert payload["text"].startswith("Coffee meeting near")
+
+
+def click(base, poll_id, choice, user="ana"):
+    payload = {"type": "block_actions", "user": {"id": "U1", "username": user}, "response_url": "https://hooks.slack.com/actions/X",
+               "actions": [{"action_id": f"office_eats_vote_{choice}", "value": f"{poll_id}:{choice}"}]}
+    body = urllib.parse.urlencode({"payload": json.dumps(payload)}).encode()
+    ts = int(time.time())
+    return post(base, body, {"X-Slack-Request-Timestamp": str(ts), "X-Slack-Signature": sign(body, ts)}, "/slack/interact")
+
+
+def test_vote_button_records_vote_and_redraws_poll(running):
+    base, posted, store = running
+    opts = [{"id": f"node/{i}", "name": f"P{i}", "url": "https://www.openstreetmap.org/node/1", "walk_min": 2, "blurb": ""}
+            for i in range(2)]
+    pid = store.create_poll("Lunch?", opts)
+    assert click(base, pid, 1) == (200, {})
+    assert store.tally(pid)[1][0] == (opts[1], ["ana"])
+    url, reply = posted[-1]
+    assert url == "https://hooks.slack.com/actions/X" and reply["replace_original"] is True and "*1* vote" in json.dumps(reply)
+    store.close_poll(pid)
+    click(base, pid, 0, "bo")
+    assert "Vote not counted: this poll is closed" in posted[-1][1]["text"]
+
+
+def test_interact_rejects_unsigned_and_junk(running):
+    base, posted, _ = running
+    body = urllib.parse.urlencode({"payload": "{}"}).encode()
+    assert post(base, body, {"X-Slack-Request-Timestamp": "1", "X-Slack-Signature": "v0=x"}, "/slack/interact")[0] == 401
+    ts = int(time.time())
+    assert post(base, body, {"X-Slack-Request-Timestamp": str(ts), "X-Slack-Signature": sign(body, ts)}, "/slack/interact")[0] == 400
+    assert posted == []
