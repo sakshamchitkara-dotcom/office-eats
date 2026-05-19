@@ -142,6 +142,24 @@ def cmd_poll(a: argparse.Namespace) -> int:
     return 0
 
 
+def _team_line(t: dict) -> str:
+    return (f"{t['name']}: {t['office_name'] or t['location']} ({t['location']}) · diet: {', '.join(t['diets']) or 'any'}"
+            f" · party: {t['party'] or '-'} · tz: {t['tz'] or 'auto'}")
+
+
+def cmd_team(a: argparse.Namespace) -> int:
+    store = make_store()
+    if a.team_cmd == "set":
+        t = store.set_team(a.team, location=a.office, office_name=a.office_name, party=a.party, tz=a.tz,
+                           diets=None if a.diet is None else parse_diets(a.diet))
+        print(_team_line(t))
+    elif a.team_cmd == "show":
+        print(_team_line(store.team(a.team)))
+    else:
+        print("\n".join(_team_line(t) for t in store.teams()) or "(no teams yet)")
+    return 0
+
+
 def cmd_serve(a: argparse.Namespace) -> int:
     from .server import serve  # imports cli helpers, so keep it lazy
 
@@ -186,6 +204,19 @@ def build_parser() -> argparse.ArgumentParser:
         p_.add_argument("--poll-format", choices=["text", "slack"], default="text", help="print the poll as text or Slack JSON")
     pl.set_defaults(func=cmd_poll)
 
+    t = sub.add_parser("team", help="saved team profiles: office, dietary needs, party size")
+    tsub = t.add_subparsers(dest="team_cmd", required=True)
+    ts = tsub.add_parser("set", help="create or update a team")
+    ts.add_argument("team")
+    ts.add_argument("--office", help="office address, company name, or 'lat,lon'")
+    ts.add_argument("--office-name", help="display name for the office")
+    ts.add_argument("--diet", help=f"team dietary needs, every pick must meet all of them ({', '.join(DIETS)}); '' clears")
+    ts.add_argument("--party", type=int, help="usual party size")
+    ts.add_argument("--tz", help="office time zone (default: looked up)")
+    tsub.add_parser("show", help="show one team").add_argument("team")
+    tsub.add_parser("list", help="list teams")
+    t.set_defaults(func=cmd_team)
+
     s = sub.add_parser("serve", help="run the Slack slash-command endpoint")
     s.add_argument("--host", default="127.0.0.1")
     s.add_argument("--port", type=int, default=8080)
@@ -201,7 +232,7 @@ def main(argv: list[str] | None = None) -> int:
     a = build_parser().parse_args(argv)
     try:
         return a.func(a)
-    except (GeocodeError, ProviderError, HttpError, StoreError, ValueError) as e:
+    except (GeocodeError, ProviderError, HttpError, StoreError, ValueError, argparse.ArgumentTypeError) as e:
         print(f"office-eats: error: {e}", file=sys.stderr)
         return 2
 
