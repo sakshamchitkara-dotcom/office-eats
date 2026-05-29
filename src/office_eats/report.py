@@ -112,8 +112,70 @@ small{{color:#555}}a{{color:#0b57d0}}
 """
 
 
+LEAFLET = "https://unpkg.com/leaflet@1.9.4/dist/leaflet"
+LEAFLET_SRI = {"css": "sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=", "js": "sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="}
+
+
+def to_map(r: Result) -> str:
+    """One HTML file: Leaflet from a CDN (pinned + SRI), OSM tiles with attribution, numbered markers."""
+    e = html.escape
+    data = {"office": {"name": r.place.name, "lat": r.place.lat, "lon": r.place.lon},
+            "venues": [{"n": i, "name": s.venue.name, "lat": s.venue.lat, "lon": s.venue.lon, "score": round(s.score),
+                        "walk": round(s.venue.walk_min), "price": _price(s.venue), "why": s.blurb or "; ".join(s.reasons),
+                        "osm": osm_link(s.venue), "site": safe_url(s.venue.website)} for i, s in enumerate(r.items, 1)]}
+    # Venue names are crowd-sourced: "</" is escaped so no name can close the script tag, and the page
+    # builds popups with textContent, never innerHTML.
+    blob = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
+    return f"""<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{e(_title(r))}</title>
+<link rel="stylesheet" href="{LEAFLET}.css" integrity="{LEAFLET_SRI['css']}" crossorigin="">
+<script src="{LEAFLET}.js" integrity="{LEAFLET_SRI['js']}" crossorigin=""></script>
+<style>
+html,body{{height:100%;margin:0;font:14px/1.4 system-ui,sans-serif}}#map{{height:calc(100% - 3rem)}}
+header{{height:3rem;display:flex;align-items:center;padding:0 1rem;gap:.75rem;background:#fff;color:#1d1d1f;border-bottom:1px solid #ddd}}
+header h1{{font-size:1rem;margin:0}}.pin{{background:#0b57d0;color:#fff;border-radius:50%;text-align:center;font-weight:600;line-height:24px}}
+.pin.office{{background:#c5221f}}
+@media (prefers-color-scheme:dark){{header{{background:#161617;color:#eee;border-color:#333}}}}
+</style></head><body>
+<header><h1>{e(_title(r))}</h1><small>{len(r.items)} picks · walking: {e(r.walk_source)}</small></header>
+<div id="map"></div>
+<script>
+const data = {blob};
+const map = L.map("map");
+L.tileLayer("https://tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png", {{maxZoom: 19,
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}}).addTo(map);
+const icon = (text, cls) => L.divIcon({{className: "pin " + cls, html: text, iconSize: [24, 24]}});
+function popup(v) {{
+  const div = document.createElement("div");
+  const add = (tag, text) => {{ const el = document.createElement(tag); el.textContent = text; div.appendChild(el); return el; }};
+  add("strong", v.n ? v.n + ". " + v.name : v.name);
+  if (v.n) {{
+    add("div", v.score + "/100 · " + v.walk + " min walk · " + v.price);
+    add("div", v.why);
+    const links = add("div", "");
+    for (const [label, url] of [["OpenStreetMap", v.osm], ["website", v.site]]) {{
+      if (!url) continue;
+      const a = document.createElement("a"); a.href = url; a.textContent = label; a.rel = "nofollow noopener"; a.target = "_blank";
+      links.append(links.childNodes.length ? " · " : "", a);
+    }}
+  }}
+  return div;
+}}
+const points = [[data.office.lat, data.office.lon]];
+L.marker(points[0], {{icon: icon("★", "office"), title: data.office.name}}).bindPopup(popup(data.office)).addTo(map);
+for (const v of data.venues) {{
+  L.marker([v.lat, v.lon], {{icon: icon(String(v.n), ""), title: v.name}}).bindPopup(popup(v)).addTo(map);
+  points.push([v.lat, v.lon]);
+}}
+map.fitBounds(points, {{padding: [30, 30], maxZoom: 17}});
+</script>
+</body></html>
+"""
+
+
 def to_json(r: Result) -> str:
     return json.dumps(r.to_dict(), indent=2, ensure_ascii=False)
 
 
-FORMATS = {"table": table, "md": markdown, "html": to_html, "json": to_json}
+FORMATS = {"table": table, "md": markdown, "html": to_html, "json": to_json, "map": to_map}

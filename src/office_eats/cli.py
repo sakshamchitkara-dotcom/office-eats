@@ -93,7 +93,7 @@ def cmd_batch(a: argparse.Namespace) -> int:
     out_dir = Path(a.out_dir) if a.out_dir else None
     if out_dir:
         out_dir.mkdir(parents=True, exist_ok=True)
-    ext = {"table": "txt", "md": "md", "html": "html", "json": "json", "slack": "json"}[a.format]
+    ext = {"table": "txt", "md": "md", "html": "html", "map": "html", "json": "json", "slack": "json"}[a.format]
     for office in read_offices(a.csv):
         q = make_query(a, office["location"], office["name"])
         q.use_case = office.get("use_case") or q.use_case

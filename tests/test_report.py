@@ -58,3 +58,13 @@ def test_guessed_prices_are_flagged():
     rows = report.table(r).splitlines()
     assert " ~$$ " in rows[-2] and " $$$ " in rows[-1] and "~$$$" not in rows[-1]
     assert "Prices marked ~ are guesses" in report.markdown(r)
+
+
+def test_map_is_self_contained_and_escapes_names(result):
+    out = report.to_map(result)
+    assert 'integrity="sha256-' in out and "tile.openstreetmap.org" in out and "OpenStreetMap</a> contributors" in out
+    data = json.loads(out.split("const data = ")[1].split(";\nconst map")[0])
+    assert len(data["venues"]) == 4 and data["office"]["name"] == "Adobe HQ"
+    evil = Venue("node/1", "</script><script>alert(1)</script>", 0, 0)
+    out = report.to_map(Result(Query("0,0"), Place("HQ", 0, 0), [Scored(evil, 50, [])], 1))
+    assert "</script><script>" not in out and "innerHTML" not in out
