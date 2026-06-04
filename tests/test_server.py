@@ -35,6 +35,12 @@ def test_parse_command():
     assert server.parse_command("37.33,-121.89").use_case == "lunch"
     with pytest.raises(ValueError, match="Usage"):
         server.parse_command("coffee")
+    q = server.parse_command("lunch route:osrm tz:Europe/London at:fri_12:30 1 Canada Square, London")
+    assert (q.routing, q.tz, q.at, q.location) == ("osrm", "Europe/London", "fri 12:30", "1 Canada Square, London")
+    with pytest.raises(ValueError, match="route must be"):
+        server.parse_command("route:google 1,1")
+    with pytest.raises(ValueError, match="unknown time zone"):
+        server.parse_command("tz:Nowhere/Land 1,1")
 
 
 @pytest.fixture
