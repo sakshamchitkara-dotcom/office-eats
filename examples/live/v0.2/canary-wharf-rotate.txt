@@ -1,0 +1,16 @@
+$ office-eats team set Platform --office "1 Canada Square, London" --office-name "One Canada Square" --diet vegetarian --party 6
+Platform: One Canada Square (1 Canada Square, London) · diet: vegetarian · party: 6 · tz: auto
+$ office-eats rotate Platform --routing osrm
+Platform lunch for 2026-W39: Pret A Manger
+  0 min walk · sandwich · Budget-friendly sandwich counter-service spot, 0 min on foot; vegan/vegetarian options; can likely seat ~6.
+  https://www.openstreetmap.org/node/3835357158
+$ office-eats rotate Platform --routing osrm
+Platform lunch for 2026-W39: Pret A Manger (already picked this week; --reroll to change)
+  0 min walk · sandwich · Budget-friendly sandwich counter-service spot, 0 min on foot; vegan/vegetarian options; can likely seat ~6.
+  https://www.openstreetmap.org/node/3835357158
+$ office-eats rotate Platform --routing osrm --reroll
+Platform lunch for 2026-W39: Bagel Factory
+  4 min walk · bagel · Budget-friendly bagel counter-service spot, 4 min on foot; open when you need it; vegan/vegetarian options; can likely seat ~6.
+  https://www.openstreetmap.org/node/6553275297
+$ office-eats rotate Platform --history
+2026-W39  Bagel Factory

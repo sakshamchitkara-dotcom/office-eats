@@ -1,0 +1,21 @@
+$ office-eats poll create "1 Canada Square, London" --name "One Canada Square" --at now --routing osrm
+created poll 92bd2717
+Where should we eat near One Canada Square?  (poll 92bd2717)
+1. Greggs  [0]  0 min walk
+2. Pret A Manger  [0]  1 min walk
+3. Tortilla  [0]  2 min walk
+4. Pret A Manger  [0]  0 min walk
+$ office-eats poll vote 92bd2717 ana 3
+$ office-eats poll vote 92bd2717 bo 3
+$ office-eats poll vote 92bd2717 cy 1
+$ office-eats poll vote 92bd2717 cy 2   # changes cy's vote
+$ office-eats poll close 92bd2717
+Where should we eat near One Canada Square?  (poll 92bd2717, closed)
+1. Greggs  [0]  0 min walk
+2. Pret A Manger  [1]  1 min walk  - cy
+3. Tortilla  [2]  2 min walk  - ana, bo
+4. Pret A Manger  [0]  0 min walk
+Leading: Tortilla
+$ office-eats poll vote 92bd2717 dee 1
+office-eats: error: this poll is closed
+(exit 2)

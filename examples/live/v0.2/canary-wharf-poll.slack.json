@@ -1,0 +1,67 @@
+{
+  "text": "Where should we eat near One Canada Square?",
+  "blocks": [
+    {
+      "type": "header",
+      "text": {
+        "type": "plain_text",
+        "text": "Where should we eat near One Canada Square?"
+      }
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*1. <https://www.openstreetmap.org/node/3835356850|Greggs>*  ·  0 min walk  ·  *0* votes\nBudget-friendly sandwich counter-service spot, 0 min on foot; open when you need it; can likely seat ~6."
+      }
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*2. <https://www.openstreetmap.org/node/2768944961|Pret A Manger>*  ·  1 min walk  ·  *1* vote\nBudget-friendly sandwich counter-service spot, 1 min on foot; open when you need it; can likely seat ~6."
+      }
+    },
+    {
+      "type": "context",
+      "elements": [
+        {
+          "type": "mrkdwn",
+          "text": "cy"
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*3. <https://www.openstreetmap.org/node/6553275300|Tortilla>*  ·  2 min walk  ·  *2* votes\nProbably budget-friendly tex-mex counter-service spot, 2 min on foot; open when you need it; can likely seat ~6."
+      }
+    },
+    {
+      "type": "context",
+      "elements": [
+        {
+          "type": "mrkdwn",
+          "text": "ana, bo"
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*4. <https://www.openstreetmap.org/node/3835357158|Pret A Manger>*  ·  0 min walk  ·  *0* votes\nBudget-friendly sandwich counter-service spot, 0 min on foot; vegan/vegetarian options; can likely seat ~6."
+      }
+    },
+    {
+      "type": "context",
+      "elements": [
+        {
+          "type": "mrkdwn",
+          "text": "Poll closed. · Data © OpenStreetMap contributors, ODbL"
+        }
+      ]
+    }
+  ]
+}
