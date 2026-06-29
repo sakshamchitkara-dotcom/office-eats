@@ -71,7 +71,8 @@ def recommend(q: Query, http: Http, llm_client=None) -> Result:
         raise ValueError(f"use case must be one of {sorted(PROFILES)}")
     place = geocode(q.location, http, name=q.name)
     zone = None
-    if q.at or q.when or q.tz:  # only look the zone up when a time matters
+    # Naive `when` is already office-local, so the zone is only needed to resolve --at or an aware datetime.
+    if q.at or q.tz or (q.when and q.when.tzinfo):
         zone = office_tz(place.lat, place.lon, http, q.tz)
         local_now = datetime.now(zone).replace(tzinfo=None) if zone else datetime.now()
         if q.at:
