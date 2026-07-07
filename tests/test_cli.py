@@ -15,6 +15,9 @@ def test_parse_when():
     assert parse_when("mon 11:00", MON_NOON) == datetime(2026, 9, 28, 11, 0)  # already passed today
     assert parse_when("2026-10-01 12:30") == datetime(2026, 10, 1, 12, 30)
     assert parse_when(None) is None
+    for bad in ("fri 7pm", "fri", "tomorrow", "fri 25:00"):
+        with pytest.raises(ValueError, match="can't read time"):
+            parse_when(bad, MON_NOON)
 
 
 def test_parse_diets():
