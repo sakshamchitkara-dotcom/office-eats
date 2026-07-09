@@ -43,6 +43,10 @@ def test_parse_command():
         server.parse_command("route:google 1,1")
     with pytest.raises(ValueError, match="unknown time zone"):
         server.parse_command("tz:Nowhere/Land 1,1")
+    for bad in ("party:abc", "party:-2", "n:0", "walk:nan", "walk:inf"):
+        with pytest.raises(ValueError, match=f"^{bad.split(':')[0]}: must be a number"):
+            server.parse_command(f"{bad} 1,1")
+    assert server.parse_command("1,1").limit == 5 and server.parse_command("n:3 1,1").limit == 3
 
 
 @pytest.fixture

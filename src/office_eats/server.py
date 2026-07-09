@@ -64,9 +64,23 @@ def parse_command(text: str) -> Query:
         raise ValueError(f"route must be one of {', '.join(ROUTING_ENGINES)}")
     if "tz" in opts:
         office_tz(0, 0, override=opts["tz"])  # validates the name
+    party, n = _number(opts, "party", int, 0, 200), _number(opts, "n", int, 1, 10)
+    walk = _number(opts, "walk", float, 1, 60)
     return Query(" ".join(rest), use_case=use_case, diets=parse_diets(opts.get("diet")),
-                 party=int(opts.get("party", 0)), at=at, routing=route, tz=opts.get("tz"),
-                 max_walk=float(opts["walk"]) if "walk" in opts else None, limit=min(int(opts.get("n", 5)), 10))
+                 party=party or 0, at=at, routing=route, tz=opts.get("tz"), max_walk=walk, limit=n or 5)
+
+
+def _number(opts: dict, key: str, kind: type, lo: float, hi: float):
+    """A numeric option within [lo, hi], or None when absent; anything else is a readable error."""
+    if key not in opts:
+        return None
+    try:
+        value = kind(opts[key])
+    except ValueError:
+        value = None
+    if value is None or not lo <= value <= hi:
+        raise ValueError(f"{key}: must be a number from {lo:g} to {hi:g}, got {opts[key]!r}")
+    return value
 
 
 def make_handler(secret: str | None, http: Http, worker=threading.Thread, store: Store | None = None):
