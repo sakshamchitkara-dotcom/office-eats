@@ -101,9 +101,9 @@ def cmd_batch(a: argparse.Namespace) -> int:
     for office in read_offices(a.csv):
         q = make_query(a, office["location"], office["name"])
         q.use_case = office.get("use_case") or q.use_case
-        q.diets = parse_diets(office.get("diet")) or q.diets
-        q.party = int(office.get("party") or q.party)
-        try:
+        try:  # a bad diet or party in one row is that row's failure, not the whole batch's
+            q.diets = parse_diets(office.get("diet")) or q.diets
+            q.party = int(office.get("party") or q.party)
             text = FORMATS[a.format](recommend(q, http))
         except (GeocodeError, ProviderError, HttpError, ValueError) as e:
             failures += 1
