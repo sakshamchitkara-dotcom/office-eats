@@ -12,7 +12,8 @@ import threading
 import time
 from pathlib import Path
 
-DEFAULT_PATH = Path(os.environ.get("OFFICE_EATS_DB", Path.home() / ".local" / "share" / "office-eats" / "data.sqlite3"))
+# expanduser: a value copied from .env.example ("~/...") must not create a literal "~" directory.
+DEFAULT_PATH = Path(os.environ.get("OFFICE_EATS_DB", Path.home() / ".local" / "share" / "office-eats" / "data.sqlite3")).expanduser()
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS polls (id TEXT PRIMARY KEY, title TEXT NOT NULL, options TEXT NOT NULL,

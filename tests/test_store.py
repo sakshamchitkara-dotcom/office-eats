@@ -41,3 +41,13 @@ def test_persists_on_disk(tmp_path):
     pid = Store(path).create_poll("x", OPTS)
     Store(path).vote(pid, "ana", 2)
     assert Store(path).tally(pid)[1][0][1] == ["ana"]
+
+
+def test_env_paths_expand_home(tmp_path):
+    import os
+    import subprocess
+    import sys
+    env = {**os.environ, "HOME": str(tmp_path), "OFFICE_EATS_DB": "~/db.sqlite3", "OFFICE_EATS_CACHE": "~/cache.sqlite3"}
+    out = subprocess.run([sys.executable, "-c", "from office_eats import cache, store; print(store.DEFAULT_PATH); print(cache.DEFAULT_PATH)"],
+                         env=env, capture_output=True, text=True, check=True).stdout.split()
+    assert out == [str(tmp_path / "db.sqlite3"), str(tmp_path / "cache.sqlite3")]
