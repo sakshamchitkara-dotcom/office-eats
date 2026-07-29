@@ -25,6 +25,8 @@ CREATE TABLE IF NOT EXISTS teams (name TEXT PRIMARY KEY, location TEXT NOT NULL,
 """
 CREATE_PICKS = """CREATE TABLE IF NOT EXISTS picks (team TEXT NOT NULL, week TEXT NOT NULL, venue_id TEXT NOT NULL,
                                               venue_name TEXT NOT NULL, at REAL NOT NULL, PRIMARY KEY (team, week))"""
+CREATE_MEMBERS = """CREATE TABLE IF NOT EXISTS members (team TEXT NOT NULL, name TEXT NOT NULL, diets TEXT NOT NULL DEFAULT '[]',
+                                                  PRIMARY KEY (team, name))"""
 TEAM_FIELDS = ("location", "office_name", "diets", "party", "tz")
 
 
@@ -40,6 +42,7 @@ class Store:
         self.lock = threading.Lock()
         self.db.executescript(SCHEMA)
         self.db.execute(CREATE_PICKS)
+        self.db.execute(CREATE_MEMBERS)
 
     # --- polls -------------------------------------------------------------------------------------------------
     def create_poll(self, title: str, options: list[dict]) -> str:
@@ -109,6 +112,25 @@ class Store:
 
     def teams(self) -> list[dict]:
         return [self.team(n) for (n,) in self.db.execute("SELECT name FROM teams ORDER BY name")]
+
+    # --- members: per-person dietary needs --------------------------------------------------------------------
+    def set_member(self, team: str, name: str, diets: set[str]) -> dict:
+        self.team(team)  # must exist
+        if not name.strip():
+            raise StoreError("member name required")
+        member = {"name": name.strip()[:80], "diets": sorted(diets)}
+        with self.lock, self.db:
+            self.db.execute("INSERT OR REPLACE INTO members VALUES (?, ?, ?)", (team, member["name"], json.dumps(member["diets"])))
+        return member
+
+    def remove_member(self, team: str, name: str) -> None:
+        with self.lock, self.db:
+            if not self.db.execute("DELETE FROM members WHERE team = ? AND name = ?", (team, name)).rowcount:
+                raise StoreError(f"team {team!r} has no member {name!r}")
+
+    def members(self, team: str) -> list[dict]:
+        rows = self.db.execute("SELECT name, diets FROM members WHERE team = ? ORDER BY name", (team,))
+        return [{"name": n, "diets": json.loads(d)} for n, d in rows]
 
     # --- rotation ----------------------------------------------------------------------------------------------
     def record_pick(self, team: str, week: str, venue_id: str, venue_name: str) -> None:

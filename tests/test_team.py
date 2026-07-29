@@ -30,3 +30,20 @@ def test_team_errors(store, capsys):
     assert cli.main(["team", "set", "New", "--office", "1,1", "--diet", "paleo"]) == 2
     with pytest.raises(StoreError, match="no team"):
         store.team("Ghost")
+
+
+def test_team_members(store, capsys):
+    store.set_team("Platform", location="1,1")
+    assert cli.main(["team", "member", "Platform", "ana", "--diet", "vegan"]) == 0
+    assert cli.main(["team", "member", "Platform", "bo", "--diet", "halal,gluten-free"]) == 0
+    assert cli.main(["team", "member", "Platform", "cy"]) == 0
+    assert cli.main(["team", "member", "Platform", "ana", "--diet", "vegetarian"]) == 0  # update, not a duplicate
+    assert store.members("Platform") == [{"name": "ana", "diets": ["vegetarian"]}, {"name": "bo", "diets": ["gluten_free", "halal"]},
+                                         {"name": "cy", "diets": []}]
+    capsys.readouterr()
+    assert cli.main(["team", "show", "Platform"]) == 0
+    assert "  bo: gluten_free, halal\n  cy: no restrictions" in capsys.readouterr().out
+    assert cli.main(["team", "member", "Platform", "cy", "--remove"]) == 0
+    assert cli.main(["team", "member", "Platform", "cy", "--remove"]) == 2
+    assert cli.main(["team", "member", "Ghost", "ana"]) == 2
+    assert "no team 'Ghost'" in capsys.readouterr().err
