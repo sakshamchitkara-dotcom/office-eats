@@ -64,3 +64,26 @@ def test_rotate_cli(env, capsys):
     assert "already picked this week" in capsys.readouterr().out
     assert cli.main(["rotate", "Platform", "--history"]) == 0
     assert capsys.readouterr().out.startswith("2026-W39  ")
+
+
+def test_members_prefer_full_coverage_and_never_run_dry(env, capsys):
+    store, http = env
+    store.set_member("Platform", "ana", {"vegan"})
+    store.set_member("Platform", "bo", {"halal"})
+    store.set_member("Platform", "cy", set())
+    _, result, chosen, _ = rotate(store, "Platform", http, at="2026-09-21 12:00")
+    assert {"vegan", "halal"} <= chosen.venue.diets  # one place with an option for both
+    assert len(result.items) == 20
+    # A mix no single place covers: the old team-wide filter found nothing, coverage still picks the best fit.
+    store.set_member("Platform", "dee", {"kosher"})
+    assert cli.main(["rotate", "Platform", "--at", "2026-09-28 12:00"]) == 0
+    out = capsys.readouterr().out
+    # Week 39's vegan+halal pick is now off-limits for repeats, so this week covers fewer people, dee never.
+    assert "/3 members with dietary needs; no tagged option for" in out and out.rstrip().endswith("dee")
+
+
+def test_by_coverage_is_stable():
+    from office_eats.rotate import by_coverage
+    a, b, c = items("a", "b", "c")
+    b.venue.diets = {"vegan", "vegetarian"}
+    assert [s.venue.id for s in by_coverage([a, b, c], [{"name": "ana", "diets": ["vegetarian"]}])] == ["b", "a", "c"]
