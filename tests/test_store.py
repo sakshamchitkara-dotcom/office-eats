@@ -51,3 +51,19 @@ def test_env_paths_expand_home(tmp_path):
     out = subprocess.run([sys.executable, "-c", "from office_eats import cache, store; print(store.DEFAULT_PATH); print(cache.DEFAULT_PATH)"],
                          env=env, capture_output=True, text=True, check=True).stdout.split()
     assert out == [str(tmp_path / "db.sqlite3"), str(tmp_path / "cache.sqlite3")]
+
+
+def test_feedback_rates_latest_pick_once_per_person(store):
+    with pytest.raises(StoreError, match="no pick"):
+        store.rate("T", "ana", 1)
+    store.record_pick("T", "2026-W38", "node/1", "Taqueria")
+    store.record_pick("T", "2026-W39", "node/2", "Pho")
+    assert store.rate("T", "ana", 1)["venue_id"] == "node/2"
+    store.rate("T", "bo", -1)
+    store.rate("T", "bo", 1)  # changed their mind
+    store.rate("T", "ana", -1, week="2026-W38")
+    assert store.feedback("T") == {"node/1": (0, 1), "node/2": (2, 0)}
+    with pytest.raises(StoreError):
+        store.rate("T", "ana", 0)
+    with pytest.raises(StoreError, match="for 2026-W01"):
+        store.rate("T", "ana", 1, week="2026-W01")
