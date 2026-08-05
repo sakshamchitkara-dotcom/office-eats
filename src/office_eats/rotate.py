@@ -25,6 +25,19 @@ def by_coverage(items: list[Scored], members: list[dict]) -> list[Scored]:
     return sorted(items, key=lambda s: len(uncovered(s.venue, members)))  # stable sort keeps the ranker's order
 
 
+FEEDBACK_POINTS, FEEDBACK_CAP = 5, 20  # ponytail: flat points per net vote; decay by age if tastes drift
+
+
+def apply_feedback(items: list[Scored], feedback: dict[str, tuple[int, int]]) -> list[Scored]:
+    """Nudge scores by the team's past thumbs up/down (5 points per net vote, capped at +/-20) and re-sort."""
+    for s in items:
+        up, down = feedback.get(s.venue.id, (0, 0))
+        if up or down:
+            s.score += max(-FEEDBACK_CAP, min(FEEDBACK_CAP, FEEDBACK_POINTS * (up - down)))
+            s.reasons.append(f"team feedback {up} up / {down} down")
+    return sorted(items, key=lambda s: -s.score)
+
+
 def choose(items: list[Scored], history: list[dict], avoid_weeks: int) -> Scored | None:
     """Best-ranked place not picked in the last `avoid_weeks` picks; if all were, the one picked longest ago."""
     if not items:
@@ -46,6 +59,8 @@ def rotate(store: Store, team_name: str, http: Http, *, at: str | None = None, a
     q = Query(team["location"], name=team["office_name"], use_case="lunch", diets=set(team["diets"]), party=team["party"],
               tz=team["tz"], at=at or "now", limit=200 if members else pool, routing=routing, llm="off")
     result = recommend(q, http)
+    if feedback := store.feedback(team_name):
+        result.items = apply_feedback(result.items, feedback)
     if members:
         result.items = by_coverage(result.items, members)[:pool]
     week = week_key(result.query.when.date())
