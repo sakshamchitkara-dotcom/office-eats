@@ -10,6 +10,7 @@ import hashlib
 import hmac
 import json
 import os
+import re
 import sys
 import threading
 import time
@@ -21,6 +22,7 @@ from .cli import parse_diets
 from .http import Http
 from .recommend import Query, recommend
 from .poll import VOTE_ACTION, parse_vote_value
+from .poll import to_html as poll_to_html
 from .poll import to_slack as poll_to_slack
 from .scoring import PROFILES
 from .slack import post_webhook, to_slack
@@ -31,6 +33,7 @@ from .tz import office_tz, parse_when
 USAGE = ("Usage: `/eats [lunch|dinner|catering|coffee] [diet:vegan,halal] [party:8] [at:fri_19:00] "
          "[walk:10] [route:osrm] [tz:Europe/London] <address or lat,lon>`")
 MAX_BODY = 16 * 1024
+POLL_PATH = re.compile(r"^/poll/([0-9a-f]{8})$")
 
 
 def verify(secret: str, timestamp: str, body: bytes, signature: str, now: float | None = None) -> bool:
@@ -93,16 +96,55 @@ def make_handler(secret: str | None, http: Http, worker=threading.Thread, store:
             self.end_headers()
             self.wfile.write(body)
 
+        def _send_html(self, code: int, page: str, headers: dict | None = None) -> None:
+            body = page.encode()
+            self.send_response(code)
+            for k, v in {"Content-Type": "text/html; charset=utf-8", "Content-Length": str(len(body)),
+                         "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'",
+                         "X-Frame-Options": "DENY", "Referrer-Policy": "no-referrer", **(headers or {})}.items():
+                self.send_header(k, v)
+            self.end_headers()
+            self.wfile.write(body)
+
         def do_GET(self):
-            self._send(200, {"ok": True}) if self.path == "/healthz" else self._send(404, {"error": "not found"})
+            path, _, query = self.path.partition("?")
+            if path == "/healthz":
+                return self._send(200, {"ok": True})
+            if (m := POLL_PATH.match(path)) and store is not None:
+                try:
+                    return self._send_html(200, poll_to_html(store, m[1], "Vote counted." if query == "voted=1" else ""))
+                except StoreError:
+                    pass
+            self._send(404, {"error": "not found"})
+
+        def _web_vote(self, poll_id: str, body: bytes) -> None:
+            """Form POST from the voting page. No Slack signature here, so refuse cross-site posts instead."""
+            origin = self.headers.get("Origin")
+            if origin and urllib.parse.urlsplit(origin).netloc != self.headers.get("Host"):
+                return self._send(403, {"error": "cross-site vote refused"})
+            form = {k: v[0] for k, v in urllib.parse.parse_qs(body.decode("utf-8", "replace")).items()}
+            try:
+                if not form.get("choice", "").isdigit():
+                    raise StoreError("pick one of the options")
+                store.vote(poll_id, form.get("voter", ""), int(form["choice"]))
+            except StoreError as e:
+                try:
+                    return self._send_html(400, poll_to_html(store, poll_id, f"Vote not counted: {e}"))
+                except StoreError:
+                    return self._send(404, {"error": "not found"})
+            # Post/Redirect/Get, so a reload doesn't resubmit the form.
+            self._send_html(303, "", {"Location": f"/poll/{poll_id}?voted=1"})
 
         def do_POST(self):
-            if self.path not in ("/slack/command", "/slack/interact"):
+            poll_match = POLL_PATH.match(self.path) if store is not None else None
+            if self.path not in ("/slack/command", "/slack/interact") and not poll_match:
                 return self._send(404, {"error": "not found"})
             length = int(self.headers.get("Content-Length") or 0)
             if length > MAX_BODY:
                 return self._send(413, {"error": "too large"})
             body = self.rfile.read(length)
+            if poll_match:
+                return self._web_vote(poll_match[1], body)
             if secret is not None and not verify(secret, self.headers.get("X-Slack-Request-Timestamp", ""), body,
                                                  self.headers.get("X-Slack-Signature", "")):
                 return self._send(401, {"error": "bad signature"})
@@ -164,5 +206,5 @@ def serve(host: str = "127.0.0.1", port: int = 8080, insecure: bool = False) -> 
         raise SystemExit("SLACK_SIGNING_SECRET is required (use --insecure only for local testing)")
     handler = make_handler(None if insecure else secret, Http(cache=Cache()), store=Store())
     httpd = ThreadingHTTPServer((host, port), handler)
-    print(f"office-eats: listening on http://{host}:{port} (/slack/command, /slack/interact)", file=sys.stderr)
+    print(f"office-eats: listening on http://{host}:{port} (/slack/command, /slack/interact, /poll/<id>)", file=sys.stderr)
     httpd.serve_forever()

@@ -130,3 +130,38 @@ def test_bad_diet_gets_a_usage_reply_not_a_crash(running):
     ts = int(time.time())
     status, ack = post(base, body, {"X-Slack-Request-Timestamp": str(ts), "X-Slack-Signature": sign(body, ts)})
     assert status == 200 and "unknown diet" in ack["text"] and posted == []
+
+
+def web(base, path, form=None, headers=None):
+    """GET, or POST a form, without following redirects."""
+    class NoRedirect(urllib.request.HTTPRedirectHandler):
+        def redirect_request(self, *a, **k): return None
+    data = urllib.parse.urlencode(form).encode() if form is not None else None
+    req = urllib.request.Request(base + path, data=data, headers=headers or {})
+    try:
+        with urllib.request.build_opener(NoRedirect).open(req) as r:
+            return r.status, dict(r.headers), r.read().decode()
+    except urllib.error.HTTPError as e:
+        return e.code, dict(e.headers), e.read().decode()
+
+
+def test_web_poll_page_votes_without_slack(running):
+    base, posted, store = running
+    opts = [{"id": f"node/{i}", "name": f"<b>P{i}</b>", "url": "https://www.openstreetmap.org/node/1", "walk_min": 2, "blurb": "b"}
+            for i in range(2)]
+    pid = store.create_poll("Lunch?", opts)
+    status, headers, page = web(base, f"/poll/{pid}")
+    assert status == 200 and 'name="choice" value="1"' in page and "&lt;b&gt;P0&lt;/b&gt;" in page and "<b>P0" not in page
+    assert "form-action 'self'" in headers["Content-Security-Policy"]
+    status, headers, _ = web(base, f"/poll/{pid}", {"voter": "ana", "choice": "1"})
+    assert status == 303 and headers["Location"] == f"/poll/{pid}?voted=1"
+    assert store.tally(pid)[1][0] == (opts[1], ["ana"]) and posted == []
+    assert "Vote counted." in web(base, f"/poll/{pid}?voted=1")[2]
+    status, _, page = web(base, f"/poll/{pid}", {"voter": "bo", "choice": "7"})
+    assert status == 400 and "Vote not counted: choice must be 1-2" in page
+    assert web(base, f"/poll/{pid}", {"voter": " ", "choice": "0"})[0] == 400
+    assert web(base, f"/poll/{pid}", {"voter": "eve", "choice": "0"}, {"Origin": "https://evil.example"})[0] == 403
+    store.close_poll(pid)
+    status, _, page = web(base, f"/poll/{pid}")
+    assert "Poll closed." in page and 'type="radio"' not in page
+    assert web(base, "/poll/deadbeef")[0] == 404 and web(base, "/poll/../etc")[0] == 404
