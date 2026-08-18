@@ -1,0 +1,43 @@
+$ office-eats team set Platform --office '1 Canada Square, London' --office-name 'One Canada Square' --party 6
+Platform: One Canada Square (1 Canada Square, London) · diet: any · party: 6 · tz: auto
+$ office-eats team member Platform ana --diet vegan
+Platform: One Canada Square (1 Canada Square, London) · diet: any · party: 6 · tz: auto
+  ana: vegan
+$ office-eats team member Platform bo --diet halal
+Platform: One Canada Square (1 Canada Square, London) · diet: any · party: 6 · tz: auto
+  ana: vegan
+  bo: halal
+$ office-eats team member Platform cy --diet kosher
+Platform: One Canada Square (1 Canada Square, London) · diet: any · party: 6 · tz: auto
+  ana: vegan
+  bo: halal
+  cy: kosher
+$ office-eats team member Platform dee
+Platform: One Canada Square (1 Canada Square, London) · diet: any · party: 6 · tz: auto
+  ana: vegan
+  bo: halal
+  cy: kosher
+  dee: no restrictions
+$ office-eats rotate Platform --at '2026-09-29 12:30'
+Platform lunch for 2026-W40: Korean BBQ House
+  10 min walk · korean, barbecue · Probably mid-priced korean restaurant, 10 min on foot; open when you need it; halal/vegan/vegetarian options; can likely seat ~12.
+  https://www.openstreetmap.org/way/267333163
+  Diet coverage: 2/3 members with dietary needs; no tagged option for cy
+$ office-eats feedback Platform ana up
+Platform 2026-W40 Korean BBQ House: 1 up, 0 down
+$ office-eats feedback Platform bo up
+Platform 2026-W40 Korean BBQ House: 2 up, 0 down
+$ office-eats feedback Platform cy down
+Platform 2026-W40 Korean BBQ House: 2 up, 1 down
+$ office-eats rotate Platform --at '2026-10-06 12:30'
+Platform lunch for 2026-W41: Neat
+  1 min walk · burger, salad · Probably budget-friendly burger counter-service spot, 1 min on foot; open when you need it; vegan/vegetarian options; can likely seat ~6.
+  https://www.openstreetmap.org/node/10092576623
+  Diet coverage: 1/3 members with dietary needs; no tagged option for bo, cy
+$ office-eats rotate Platform --history
+2026-W41  Neat
+2026-W40  Korean BBQ House
+$ office-eats team set Legacy --office '1 Canada Square, London' --diet vegan,halal,kosher
+Legacy: 1 Canada Square, London (1 Canada Square, London) · diet: halal, kosher, vegan · party: - · tz: auto
+$ office-eats rotate Legacy --at '2026-09-29 12:30'
+office-eats: error: no places match team 'Legacy' (diet: halal, kosher, vegan); relax the team's diet or widen the search
