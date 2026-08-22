@@ -41,3 +41,16 @@ $ office-eats team set Legacy --office '1 Canada Square, London' --diet vegan,ha
 Legacy: 1 Canada Square, London (1 Canada Square, London) · diet: halal, kosher, vegan · party: - · tz: auto
 $ office-eats rotate Legacy --at '2026-09-29 12:30'
 office-eats: error: no places match team 'Legacy' (diet: halal, kosher, vegan); relax the team's diet or widen the search
+# Later the team rates week 41 down. Diet coverage still ranks first, so once the 1-week repeat window
+# allows it, the place covering 2 of 3 members wins again: feedback only reorders places with equal coverage.
+$ office-eats feedback Platform ana down --week 2026-W41
+Platform 2026-W41 Neat: 0 up, 1 down
+$ office-eats feedback Platform bo down --week 2026-W41
+Platform 2026-W41 Neat: 0 up, 2 down
+$ office-eats feedback Platform dee down --week 2026-W41
+Platform 2026-W41 Neat: 0 up, 3 down
+$ office-eats rotate Platform --at '2026-10-13 12:30' --avoid-weeks 1
+Platform lunch for 2026-W42: Korean BBQ House
+  10 min walk · korean, barbecue · Probably mid-priced korean restaurant, 10 min on foot; open when you need it; halal/vegan/vegetarian options; can likely seat ~12.
+  https://www.openstreetmap.org/way/267333163
+  Diet coverage: 2/3 members with dietary needs; no tagged option for cy
