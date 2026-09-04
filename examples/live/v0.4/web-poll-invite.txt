@@ -1,0 +1,15 @@
+# Local run on 2026-09-25T10:16Z against a poll in a v0.3-format database (no network): invite links, then curl as a stranger and as ana.
+$ office-eats poll invite abcd1234 ana bo --base-url http://127.0.0.1:8765
+ana	http://127.0.0.1:8765/poll/abcd1234?voter=ana&t=4f91149c0d671ce66a747893f18e80b3
+bo	http://127.0.0.1:8765/poll/abcd1234?voter=bo&t=42367e422194f15ee8f2fac3eb923355
+poll abcd1234 is now invite-only on the web page; CLI and Slack votes still work
+
+$ curl -d "voter=eve&choice=0" .../poll/abcd1234   -> 403
+$ curl "<ana link>" | grep "Vote as"   -> Vote as ana
+$ curl -d "voter=ana&choice=1&t=<token>" .../poll/abcd1234   -> 303 /poll/abcd1234?voted=1&voter=ana&t=<token>
+
+$ office-eats poll tally abcd1234
+Old poll  (poll abcd1234)
+1. Pho  [0]  3 min walk
+2. Deli  [1]  5 min walk  - ana
+Leading: Deli

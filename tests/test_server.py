@@ -187,3 +187,23 @@ def test_serve_needs_a_secret_unless_web_only(monkeypatch):
     monkeypatch.delenv("SLACK_SIGNING_SECRET", raising=False)
     with pytest.raises(SystemExit, match="--web-only"):
         server.serve()
+
+
+def test_invite_links_make_the_web_page_invite_only(running):
+    base, _, store = running
+    opts = [{"id": f"node/{i}", "name": f"P{i}", "url": "https://www.openstreetmap.org/node/1", "walk_min": 2, "blurb": ""}
+            for i in range(2)]
+    pid = store.create_poll("Lunch?", opts)
+    assert not store.invite_only(pid)
+    tok = store.invite_token(pid, "ana")
+    assert store.invite_only(pid) and store.invite_token(pid, "ana") == tok  # stable once the key exists
+    page = web(base, f"/poll/{pid}")[2]
+    assert "invite-only" in page and 'type="radio"' not in page
+    assert web(base, f"/poll/{pid}", {"voter": "eve", "choice": "0"})[0] == 403
+    assert web(base, f"/poll/{pid}", {"voter": "eve", "choice": "0", "t": tok})[0] == 403  # ana's token, eve's name
+    page = web(base, f"/poll/{pid}?" + urllib.parse.urlencode({"voter": "ana", "t": tok}))[2]
+    assert "Vote as ana" in page and 'type="radio"' in page
+    status, headers, _ = web(base, f"/poll/{pid}", {"voter": "ana", "choice": "1", "t": tok})
+    assert status == 303 and headers["Location"] == f"/poll/{pid}?voted=1&voter=ana&t={tok}"
+    assert store.tally(pid)[1][0] == (opts[1], ["ana"])
+    store.vote(pid, "cli-user", 0)  # the CLI (and Slack) are unaffected

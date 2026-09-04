@@ -113,8 +113,10 @@ def make_handler(secret: str | None, http: Http, worker=threading.Thread, store:
             if path == "/healthz":
                 return self._send(200, {"ok": True})
             if (m := POLL_PATH.match(path)) and store is not None:
+                q = {k: v[0] for k, v in urllib.parse.parse_qs(query).items()}
                 try:
-                    return self._send_html(200, poll_to_html(store, m[1], "Vote counted." if query == "voted=1" else ""))
+                    return self._send_html(200, poll_to_html(store, m[1], "Vote counted." if q.get("voted") == "1" else "",
+                                                             q.get("voter", ""), q.get("t", "")))
                 except StoreError:
                     pass
             self._send(404, {"error": "not found"})
@@ -125,17 +127,21 @@ def make_handler(secret: str | None, http: Http, worker=threading.Thread, store:
             if origin and urllib.parse.urlsplit(origin).netloc != self.headers.get("Host"):
                 return self._send(403, {"error": "cross-site vote refused"})
             form = {k: v[0] for k, v in urllib.parse.parse_qs(body.decode("utf-8", "replace")).items()}
+            voter, token = form.get("voter", ""), form.get("t", "")
             try:
+                if store.invite_only(poll_id) and not store.check_token(poll_id, voter, token):
+                    return self._send_html(403, poll_to_html(store, poll_id, "Vote not counted: this poll needs your personal link"))
                 if not form.get("choice", "").isdigit():
                     raise StoreError("pick one of the options")
-                store.vote(poll_id, form.get("voter", ""), int(form["choice"]))
+                store.vote(poll_id, voter, int(form["choice"]))
             except StoreError as e:
                 try:
-                    return self._send_html(400, poll_to_html(store, poll_id, f"Vote not counted: {e}"))
+                    return self._send_html(400, poll_to_html(store, poll_id, f"Vote not counted: {e}", voter, token))
                 except StoreError:
                     return self._send(404, {"error": "not found"})
-            # Post/Redirect/Get, so a reload doesn't resubmit the form.
-            self._send_html(303, "", {"Location": f"/poll/{poll_id}?voted=1"})
+            # Post/Redirect/Get, so a reload doesn't resubmit the form. A personal link stays personal.
+            extra = "&" + urllib.parse.urlencode({"voter": voter, "t": token}) if token else ""
+            self._send_html(303, "", {"Location": f"/poll/{poll_id}?voted=1{extra}"})
 
         def do_POST(self):
             poll_match = POLL_PATH.match(self.path) if store is not None else None

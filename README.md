@@ -85,7 +85,15 @@ office-eats serve --web-only --host 0.0.0.0 --port 8080   # no SLACK_SIGNING_SEC
 # share http://<your-host>:8080/poll/7b3921c8
 ```
 
-`/poll/<id>` is a plain HTML page with no JavaScript. It lists the options with their current votes and voters, and has a name field and a Vote button. Votes go into the same database as CLI and Slack votes, and voting again changes yours. The page escapes every venue name, sends a strict Content-Security-Policy, and refuses form posts whose `Origin` is another site. There are **no accounts**: anyone who has the link can vote under any name. That suits a team channel, not a public poll. A full `serve` (with a signing secret) serves the page as well. Real run, including a vote from Chromium: [`examples/live/v0.3/canary-wharf-web-poll.txt`](examples/live/v0.3/canary-wharf-web-poll.txt) and the resulting [page](examples/live/v0.3/canary-wharf-web-poll.html).
+`/poll/<id>` is a plain HTML page with no JavaScript. It lists the options with their current votes and voters, and has a name field and a Vote button. Votes go into the same database as CLI and Slack votes, and voting again changes yours. The page escapes every venue name, sends a strict Content-Security-Policy, and refuses form posts whose `Origin` is another site. By default there are **no accounts**: anyone who has the link can vote under any name. To stop that, send personal links:
+
+```bash
+office-eats poll invite 7b3921c8 ana bo cy --base-url https://eats.example.com   # or set OFFICE_EATS_BASE_URL
+ana	https://eats.example.com/poll/7b3921c8?voter=ana&t=4f91149c0d671ce66a747893f18e80b3
+...
+```
+
+Each link carries an HMAC of the poll id and the person's name, keyed by a random per-poll secret kept in the database. From the first `invite` on, the page only accepts votes that carry a valid token and only under the name it was made for; the plain `/poll/<id>` URL shows the tally and says the poll is invite-only. CLI and Slack votes are unaffected. Tokens travel in the URL, so they show up in the server's access log and browser history; treat a link like a password for that one poll. Real run: [`examples/live/v0.4/web-poll-invite.txt`](examples/live/v0.4/web-poll-invite.txt). A full `serve` (with a signing secret) serves the page as well. Real run, including a vote from Chromium: [`examples/live/v0.3/canary-wharf-web-poll.txt`](examples/live/v0.3/canary-wharf-web-poll.txt) and the resulting [page](examples/live/v0.3/canary-wharf-web-poll.html).
 
 ### Weekly lunch rotation
 
@@ -195,7 +203,7 @@ The Nominatim and Overpass fixtures in `tests/fixtures/` were recorded from real
 - `opening_hours` support covers weekday rules, overnight spans, `off` and `24/7`. Public-holiday, date, month and sunrise rules are skipped (so `Mo-Su 11:00-22:00; Dec 25 off` reads as open every day, including 25 December), and a venue with unparseable hours is treated as unknown rather than guessed.
 - Diet matching trusts OSM `diet:*` tags and a few cuisines that imply a diet. It cannot tell whether one dish meets two needs at once (vegan *and* gluten-free), only that the venue offers each.
 - Feedback is a flat adjustment with no decay. A thumbs-down from two years ago counts as much as one from last week.
-- The web voting page has no login. Anyone with the link can vote under any name, so share it only inside the team.
+- The web voting page has no login. Without `poll invite`, anyone with the link can vote under any name, so share it only inside the team.
 
 ## License
 

@@ -79,3 +79,14 @@ def test_batch_bad_row_does_not_stop_the_rest(offline, tmp_path, capsys):
     assert [f.name for f in (tmp_path / "out").iterdir()] == ["good.txt"]
     err = capsys.readouterr().err
     assert "Bad Diet: unknown diet" in err and "Bad Party: invalid literal" in err
+
+
+def test_poll_invite_prints_signed_links(monkeypatch, capsys):
+    from office_eats.store import Store
+    store = Store(":memory:")
+    monkeypatch.setattr(cli, "make_store", lambda: store)
+    pid = store.create_poll("t", [{"id": "a", "name": "A", "url": "u", "walk_min": 1, "blurb": ""}] * 2)
+    assert cli.main(["poll", "invite", pid, "ana", "bo b", "--base-url", "https://eats.example/"]) == 0
+    lines = capsys.readouterr().out.splitlines()
+    assert lines[0] == f"ana\thttps://eats.example/poll/{pid}?voter=ana&t={store.invite_token(pid, 'ana')}"
+    assert lines[1].startswith(f"bo b\thttps://eats.example/poll/{pid}?voter=bo+b&t=")
