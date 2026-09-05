@@ -1,12 +1,13 @@
 """Weekly lunch rotation: one pick per team per ISO week, avoiding places picked in recent weeks."""
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 from .http import Http
-from .models import Venue
+from .models import Venue, osm_link
 from .recommend import Query, Result, recommend
-from .scoring import Scored
+from .scoring import PROFILES, Scored
 from .store import Store
 
 
@@ -77,3 +78,39 @@ def rotate(store: Store, team_name: str, http: Http, *, at: str | None = None, a
                          "relax the team's diet or widen the search")
     store.record_pick(team_name, week, chosen.venue.id, chosen.venue.name)
     return {"week": week, "venue_id": chosen.venue.id, "venue_name": chosen.venue.name}, result, chosen, True
+
+
+def _ics_text(text: str) -> str:
+    return text.replace("\\", "\\\\").replace(";", "\\;").replace(",", "\\,").replace("\n", "\\n")
+
+
+def _fold(line: str) -> str:
+    """RFC 5545 3.1: lines longer than 75 octets continue on the next line after CRLF + space."""
+    out, cur = [], b""
+    for ch in line:
+        b = ch.encode()
+        if len(cur) + len(b) > (75 if not out else 74):
+            out.append(cur.decode())
+            cur = b""
+        cur += b
+    return "\r\n ".join(out + [cur.decode()])
+
+
+def to_ics(team: str, pick: dict, chosen: Scored, when: datetime, tz: str | None, now: datetime | None = None) -> str:
+    """A one-event calendar file for the pick, at the lunch time used for the rotation (office-local)."""
+    v = chosen.venue
+    start = when.replace(second=0, microsecond=0)
+    if tz:  # UTC times are unambiguous without shipping a VTIMEZONE block; unknown zone = floating local time
+        start = start.replace(tzinfo=ZoneInfo(tz)).astimezone(timezone.utc)
+    fmt = "%Y%m%dT%H%M%SZ" if start.tzinfo else "%Y%m%dT%H%M%S"
+    stamp = (now or datetime.now(timezone.utc)).strftime("%Y%m%dT%H%M%SZ")
+    end = start + timedelta(minutes=PROFILES["lunch"].stay_min)
+    lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//office-eats//rotate//EN", "BEGIN:VEVENT",
+             f"UID:{pick['week']}-{team.replace(' ', '-')}@office-eats", f"DTSTAMP:{stamp}",
+             f"DTSTART:{start.strftime(fmt)}", f"DTEND:{end.strftime(fmt)}",
+             f"SUMMARY:{_ics_text(f'{team} lunch: {v.name}')}",
+             f"LOCATION:{_ics_text(', '.join(filter(None, [v.name, v.address])))}",
+             f"GEO:{v.lat:.6f};{v.lon:.6f}", f"URL:{osm_link(v)}",
+             f"DESCRIPTION:{_ics_text(chosen.blurb or '; '.join(chosen.reasons))}\\nMap data © OpenStreetMap contributors",
+             "END:VEVENT", "END:VCALENDAR"]
+    return "\r\n".join(_fold(line) for line in lines) + "\r\n"

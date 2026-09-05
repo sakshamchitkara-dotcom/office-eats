@@ -104,7 +104,7 @@ office-eats rotate Platform --reroll     # replace it
 office-eats rotate Platform --history
 ```
 
-`rotate` ranks lunch spots for the team's saved office, applying the team's diets as a hard filter and its party size. It then picks the best place that was not picked in the last `--avoid-weeks` weeks (default 4). If every candidate is that recent, it picks the one used longest ago. You get one pick per ISO week of office-local time. Add `--slack` to post the pick.
+`rotate` ranks lunch spots for the team's saved office, applying the team's diets as a hard filter and its party size. It then picks the best place that was not picked in the last `--avoid-weeks` weeks (default 4). If every candidate is that recent, it picks the one used longest ago. You get one pick per ISO week of office-local time. Add `--slack` to post the pick. Add `--ics lunch.ics` to also write a calendar invite for the pick: a 45-minute event at the `--at` time (converted to UTC when the office time zone is known), with the venue as location, its coordinates and its OpenStreetMap link. Real file from a live run on 2026-09-25 (Canary Wharf, lunch Tue 29 Sep 12:30 BST): [`examples/live/v0.4/canary-wharf-rotate.ics`](examples/live/v0.4/canary-wharf-rotate.ics).
 
 **Per-person diets.** A team-wide `--diet` means every pick must meet every listed diet. For a mixed team, record each person instead:
 

@@ -194,7 +194,7 @@ def cmd_rotate(a: argparse.Namespace) -> int:
     if a.history:
         print("\n".join(f"{p['week']}  {p['venue_name']}" for p in store.picks(a.team)) or "(no picks yet)")
         return 0
-    pick, _, chosen, new = rotate(store, a.team, make_http(a), at=a.when, avoid_weeks=a.avoid_weeks, reroll=a.reroll,
+    pick, result, chosen, new = rotate(store, a.team, make_http(a), at=a.when, avoid_weeks=a.avoid_weeks, reroll=a.reroll,
                                   routing=a.routing)
     lines = [f"{a.team} lunch for {pick['week']}: {pick['venue_name']}" + ("" if new else " (already picked this week; --reroll to change)")]
     if chosen:
@@ -205,6 +205,12 @@ def cmd_rotate(a: argparse.Namespace) -> int:
             lines.append(f"  Diet coverage: {len(members) - len(missing)}/{len(members)} members with dietary needs"
                          + (f"; no tagged option for {', '.join(missing)}" if missing else ""))
     text = "\n".join(lines)
+    if a.ics:
+        from .rotate import to_ics
+        if chosen is None:
+            raise ValueError("this week's pick is no longer in the candidate list, so there is nothing to put in a calendar file")
+        Path(a.ics).write_bytes(to_ics(a.team, pick, chosen, result.query.when, result.timezone).encode())
+        print(f"wrote {a.ics}", file=sys.stderr)
     if a.slack:
         from .slack import esc
         post_webhook({"text": text, "blocks": [{"type": "section", "text": {"type": "mrkdwn", "text": esc(text)[:3000]}}]})
@@ -296,6 +302,7 @@ def build_parser() -> argparse.ArgumentParser:
     ro.add_argument("--history", action="store_true", help="list past picks and exit")
     ro.add_argument("--routing", choices=ROUTING_ENGINES, default="none")
     ro.add_argument("--slack", action="store_true", help="also post the pick to SLACK_WEBHOOK_URL")
+    ro.add_argument("--ics", metavar="FILE", help="also write a calendar invite (.ics) for the pick at the --at time")
     ro.add_argument("--no-cache", action="store_true")
     ro.set_defaults(func=cmd_rotate)
 
