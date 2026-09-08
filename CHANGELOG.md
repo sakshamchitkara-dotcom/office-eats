@@ -2,6 +2,14 @@
 
 All notable changes to this project. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [SemVer](https://semver.org/).
 
+## [0.4.0] - 2026-09-25
+
+### Added
+- `office-eats poll invite POLL NAME... [--base-url]`: signed personal voting links. After the first invite the web page only accepts votes carrying a valid token, under the name the token was made for. CLI and Slack votes are unaffected. Existing databases gain the column automatically.
+- `rotate --ics FILE`: a calendar invite (RFC 5545, folded and escaped) for the week's pick at the `--at` time, in UTC when the office time zone is known.
+- `--wheelchair` on `recommend`, `batch` and `poll create`: keep only venues tagged `wheelchair=yes|designated` in OSM. Markdown reports show the tag.
+- Real v0.4 outputs in `examples/live/v0.4/`.
+
 ## [0.3.0] - 2026-09-25
 
 ### Added
