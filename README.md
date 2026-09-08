@@ -151,7 +151,7 @@ Each venue gets a score from 0 to 100. The score is a weighted mix of the parts 
 | quality | Whether the OSM entry has hours, a website and a cuisine, plus the provider rating when one exists. |
 | catering | Whether the venue has `catering`, `delivery` or `takeaway` tags (catering use case only). |
 
-Dietary constraints (`vegan`, `vegetarian`, `halal`, `kosher`, `gluten_free`) are a **hard filter**. They come from OSM `diet:*` tags and from cuisines that imply them (for example `vegan` or `falafel`). `--open-only` drops venues known to be closed and keeps the ones whose hours are unknown.
+Dietary constraints (`vegan`, `vegetarian`, `halal`, `kosher`, `gluten_free`) are a **hard filter**. They come from OSM `diet:*` tags and from cuisines that imply them (for example `vegan` or `falafel`). `--open-only` drops venues known to be closed and keeps the ones whose hours are unknown. `--wheelchair` keeps only venues tagged `wheelchair=yes` or `designated` in OSM; `limited`, `no` and untagged places are dropped, and Markdown reports show the tag. Real run: [`examples/live/v0.4/canary-wharf-wheelchair.txt`](examples/live/v0.4/canary-wharf-wheelchair.txt).
 
 ### Prices
 
@@ -202,6 +202,7 @@ The Nominatim and Overpass fixtures in `tests/fixtures/` were recorded from real
 - Walking time is straight-line distance × 1.3 at 80 m/min unless you pass `--routing`. The public OSRM server has no SLA, so any routing failure falls back to that estimate with a warning.
 - `opening_hours` support covers weekday rules, overnight spans, `off` and `24/7`. Public-holiday, date, month and sunrise rules are skipped (so `Mo-Su 11:00-22:00; Dec 25 off` reads as open every day, including 25 December), and a venue with unparseable hours is treated as unknown rather than guessed.
 - Diet matching trusts OSM `diet:*` tags and a few cuisines that imply a diet. It cannot tell whether one dish meets two needs at once (vegan *and* gluten-free), only that the venue offers each.
+- `--wheelchair` relies on the OSM `wheelchair` tag. Many accessible places are simply untagged, so the filter can hide good options.
 - Feedback is a flat adjustment with no decay. A thumbs-down from two years ago counts as much as one from last week.
 - The web voting page has no login. Without `poll invite`, anyone with the link can vote under any name, so share it only inside the team.
 
