@@ -24,6 +24,9 @@ _RULE = re.compile(
     rf"(?:(?P<dates>{_DATES}(?:\s*,\s*{_DATES})*)\s*:?\s*)?"
     rf"(?P<days>{_DAY}(?:\s*[-,]\s*{_DAY})*)?\s*(?P<times>off|closed|{_TIME}(?:\s*,\s*{_TIME})*)"
 )
+# "Mo-Su,PH 16:00-02:00": PH listed next to weekdays. Holidays aren't modelled, so read it as the weekday rule it
+# contains instead of skipping the whole value. A lone "PH off" stays unparsed and is skipped.
+_PH_IN_DAYS = re.compile(r"(?<=Mo|Tu|We|Th|Fr|Sa|Su)\s*,\s*PH\b|\bPH\s*,\s*(?=Mo|Tu|We|Th|Fr|Sa|Su)")
 
 Span = tuple[int, int]  # (start_min, end_min) from midnight; end may exceed 1440 for overnight spans
 
@@ -102,7 +105,7 @@ def _mins(hhmm: str) -> int:
 def parse(text: str | None) -> list[Rule] | None:
     if not text:
         return None
-    text = text.strip()
+    text = _PH_IN_DAYS.sub("", text.strip())
     if text == "24/7":
         return [Rule(None, None, [(0, 1440)], False)]
     rules: list[Rule] = []

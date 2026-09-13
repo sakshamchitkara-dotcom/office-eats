@@ -73,6 +73,17 @@ def test_date_rules(text, when, expected):
     assert is_open(text, when) is expected
 
 
+@pytest.mark.parametrize("text,when,expected", [
+    ("Mo-Su,PH 16:00-02:00", at(SAT, 1), True),  # real San Francisco values that used to read as unknown
+    ("Mo-Su, PH 06:30-23:00", at(MON, 23, 30), False),
+    ("PH,Mo-Su 11:00-22:00", at(SUN, 12), True),
+    ("Mo-Sa 11:30-13:30,17:30-20:30; PH,Su off", at(SUN, 12), False),
+    ("Mo-Fr 08:00-15:00, PH closed", at(MON, 9), True),  # PH not next to a weekday: that rule is skipped, not applied daily
+])
+def test_ph_listed_with_weekdays(text, when, expected):
+    assert is_open(text, when) is expected
+
+
 def test_every_fixture_value_is_handled():
     tags = [e["tags"].get("opening_hours") for e in load("overpass_adobe_800m.json")["elements"]]
     for t in filter(None, tags):
