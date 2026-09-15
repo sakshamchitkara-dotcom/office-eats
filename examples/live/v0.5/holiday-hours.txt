@@ -1,0 +1,41 @@
+# 2026-09-25T10:40Z: opening_hours date rules checked on Overpass responses cached on 2026-09-25 (network blocked, 0 live requests).
+# Old = v0.4.0 hours.py, new = this version. Values are every distinct opening_hours tag in the San Jose, San Francisco and London caches.
+534 distinct opening_hours values in 3 cache files
+3 with date or nth-weekday rules
+
+Mo off; Tu-Su 08:00-14:00; Dec 25 off
+  Fri 2026-12-25 12:30  old=True   new=False
+  Thu 2026-12-24 17:00  old=False  new=False
+  Thu 2026-11-26 12:30  old=True   new=True
+  Fri 2027-01-01 12:30  old=True   new=True
+  Thu 2026-12-31 13:30  old=True   new=True
+
+Mo-Fr 08:00-14:00; Sa-Su 08:00-15:00; Jan 1 off; Dec 31 08:00-13:00
+  Fri 2026-12-25 12:30  old=True   new=True
+  Thu 2026-12-24 17:00  old=False  new=False
+  Thu 2026-11-26 12:30  old=True   new=True
+  Fri 2027-01-01 12:30  old=True   new=False
+  Thu 2026-12-31 13:30  old=True   new=False
+
+Su-Mo 10:00-20:00; Tu-Sa 10:00-21:00; Nov Th[4] off; Dec 24 10:00-16:00; Dec 25 off; Dec 31 10:00-25:00
+  Fri 2026-12-25 12:30  old=True   new=False
+  Thu 2026-12-24 17:00  old=True   new=False
+  Thu 2026-11-26 12:30  old=True   new=False
+  Fri 2027-01-01 12:30  old=True   new=True
+  Thu 2026-12-31 13:30  old=True   new=True
+
+unparsed (unknown hours): old 4, new 1
+  now read: Mo-Su, PH 06:30-23:00
+  now read: Mo-Su,PH 16:00-02:00
+  now read: PH,Mo-Su 11:00-22:00
+values whose answer changed on an ordinary week (21-27 Sep 2026): 0
+
+$ office-eats recommend "345 Park Ave, San Jose, CA 95110" -u catering --at "<date>" -n 200 -f json   # open_now for two venues
+2026-12-23 12:30  Roy’s Station        open_now = True
+2026-12-23 12:30  Hobee's Restaurant   open_now = True
+2026-12-25 12:30  Roy’s Station        open_now = True
+2026-12-25 12:30  Hobee's Restaurant   open_now = False
+2026-12-31 13:30  Hobee's Restaurant   open_now = True
+2026-12-31 13:30  Roy’s Station        open_now = False
+2027-01-01 12:30  Hobee's Restaurant   open_now = True
+2027-01-01 12:30  Roy’s Station        open_now = False
