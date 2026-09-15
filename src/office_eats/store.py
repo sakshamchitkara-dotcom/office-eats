@@ -193,3 +193,8 @@ class Store:
         """venue_id -> (thumbs up, thumbs down) across every week the team ate there."""
         rows = self.db.execute("SELECT venue_id, SUM(vote > 0), SUM(vote < 0) FROM feedback WHERE team = ? GROUP BY venue_id", (team,))
         return {vid: (up, down) for vid, up, down in rows}
+
+    def feedback_votes(self, team: str) -> list[dict]:
+        """Every rating with the week of the pick it rated, for weighting old votes less."""
+        rows = self.db.execute("SELECT venue_id, week, vote FROM feedback WHERE team = ?", (team,))
+        return [{"venue_id": vid, "week": w, "vote": v} for vid, w, v in rows]

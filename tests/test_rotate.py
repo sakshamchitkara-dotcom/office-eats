@@ -103,9 +103,28 @@ def test_feedback_moves_places_up_and_down(env, capsys):
 def test_apply_feedback_caps_and_resorts():
     from office_eats.rotate import apply_feedback
     a, b = items("a", "b")  # scores 100, 99
-    out = apply_feedback([a, b], {"a": (0, 9), "b": (1, 0)})
+    votes = [{"venue_id": "a", "week": "2026-W39", "vote": -1}] * 9 + [{"venue_id": "b", "week": "2026-W39", "vote": 1}]
+    out = apply_feedback([a, b], votes, "2026-W39")
     assert [s.venue.id for s in out] == ["b", "a"] and (a.score, b.score) == (80, 104)
-    assert a.reasons == ["team feedback 0 up / 9 down"]
+    assert a.reasons == ["team feedback 0 up / 9 down (-20)"]
+
+
+def test_old_feedback_fades():
+    from office_eats.rotate import apply_feedback, weeks_between
+    assert weeks_between("2026-W39", "2027-W12") == 26 and weeks_between("2026-W52", "2026-W53") == 1
+    down = [{"venue_id": "a", "week": "2026-W39", "vote": -1}] * 2
+    a, = items("a")
+    apply_feedback([a], down, "2026-W39")
+    assert a.score == 90  # fresh: full 5 points a vote
+    a, = items("a")
+    apply_feedback([a], down, "2027-W12")
+    assert a.score == 95  # half a year later: half
+    a, = items("a")
+    apply_feedback([a], down, "2028-W39", half_life=26)
+    assert 99 < a.score < 100  # two years on: about a sixteenth
+    a, = items("a")
+    apply_feedback([a], down, "2028-W39", half_life=0)
+    assert a.score == 90  # 0 turns decay off
 
 
 def test_rotate_writes_a_valid_ics(env, tmp_path):
