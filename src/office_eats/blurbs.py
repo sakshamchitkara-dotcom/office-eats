@@ -73,9 +73,10 @@ def claude_shortlist(items: list[Scored], request: dict, n: int, client=None) ->
     """Ask Claude to pick n of `items` and write blurbs. Raises on any failure; caller falls back."""
     import json
 
-    import anthropic
+    if client is None:
+        import anthropic  # optional dependency: pip install 'office-eats[llm]'
 
-    client = client or anthropic.Anthropic()
+        client = anthropic.Anthropic()
     payload = {"request": request, "pick": n, "candidates": [_candidate(s) for s in items]}
     resp = client.messages.create(
         model=MODEL,
