@@ -46,9 +46,12 @@ def parse(text: str | None) -> Schedule | None:
     if text == "24/7":
         return {d: [(0, 1440)] for d in range(7)}
     sched: Schedule = {}
+    prev_end = 0
     for m in _RULE.finditer(text):
-        # Skip matches that are really a PH/month rule we don't understand.
-        if re.search(r"(PH|SH|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*$", text[: m.start()].split(";")[-1]):
+        # Text between rules must be separators only. Anything else is a selector we don't understand
+        # (PH, "Dec 25", "Aug", week numbers), and the rule is skipped: "Dec 25 off" must not close every day.
+        between, prev_end = text[prev_end: m.start()], m.end()
+        if between.strip(" ,;"):
             continue
         additive = text[: m.start()].rstrip().endswith(",")  # ',' adds to earlier rules, ';' overrides
         spans = []

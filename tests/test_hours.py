@@ -37,6 +37,12 @@ def test_ph_rules_ignored():
     assert parse("Mo-Fr 09:00-17:00; PH off")[0] == [(540, 1020)]
 
 
+@pytest.mark.parametrize("text", ["Mo-Su 11:00-22:00; Dec 25 off", "Mo-Su 11:00-22:00; Jan 01 off", "Mo-Su 11:00-22:00; Aug off",
+                                  "Mo-Su 11:00-22:00; Su,PH off"])
+def test_date_rules_do_not_close_every_day(text):
+    assert is_open(text, at(MON, 12)) is True
+
+
 def test_every_fixture_value_is_handled():
     tags = [e["tags"].get("opening_hours") for e in load("overpass_adobe_800m.json")["elements"]]
     for t in filter(None, tags):
