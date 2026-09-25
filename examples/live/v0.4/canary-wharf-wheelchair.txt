@@ -1,0 +1,12 @@
+# Live Overpass data fetched 2026-09-25 (served from the local cache for this run). 48 of the 233 candidates are tagged wheelchair=yes|designated.
+$ office-eats recommend "51.5049,-0.0195" --name "1 Canada Square" --wheelchair --at "2026-09-29 12:30" -n 5
+Quick team lunch near 1 Canada Square
+51.50490,-0.01950  (233 candidates, walk: straight-line x1.3)
+
+#  Score  Name           Kind       Cuisine           Walk  $   Diet  Open
+-  -----  -------------  ---------  ----------------  ----  --  ----  ----
+1  94     Greggs         fast_food  sandwich, bakery  1m    $   -     yes
+2  93     Wasabi         fast_food  japanese          1m    ~$  -     yes
+3  93     Shake Shack    fast_food  burger            1m    $   -     yes
+4  93     Pret A Manger  fast_food  sandwich          1m    $   -     yes
+5  90     Tortilla       fast_food  tex-mex           1m    ~$  -     yes

@@ -68,3 +68,13 @@ def test_map_is_self_contained_and_escapes_names(result):
     evil = Venue("node/1", "</script><script>alert(1)</script>", 0, 0)
     out = report.to_map(Result(Query("0,0"), Place("HQ", 0, 0), [Scored(evil, 50, [])], 1))
     assert "</script><script>" not in out and "innerHTML" not in out
+
+
+def test_markdown_shows_wheelchair_tag(fake_http, monkeypatch):
+    from conftest import load
+    from office_eats import report
+    from office_eats.recommend import Query, recommend
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    http = fake_http({"overpass": load("overpass_adobe_800m.json")})
+    md = report.markdown(recommend(Query("37.3294709,-121.8947723", wheelchair=True, limit=3), http))
+    assert md.count("- Wheelchair access (OSM): yes") == 3

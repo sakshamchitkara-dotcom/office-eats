@@ -64,6 +64,8 @@ def markdown(r: Result) -> str:
         out.append(f"## {i}. {md_name} ({s.score:.0f}/100)")
         out.append(f"- {v.kind}, {', '.join(v.cuisine) or 'cuisine unknown'}, {_price(v)}, "
                    f"{v.walk_min:.0f} min walk ({v.distance_m:.0f} m)")
+        if wc := v.tags.get("wheelchair"):
+            out.append(f"- Wheelchair access (OSM): {wc}")
         if v.opening_hours:
             out.append(f"- Hours: `{v.opening_hours}` (open for the visit: {OPEN[v.open_now]})")
         links = [f"[OpenStreetMap]({osm_link(v)})"]

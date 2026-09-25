@@ -33,6 +33,7 @@ class Query:
     at: str | None = None  # 'now' / 'fri 19:00' / ISO, resolved against the office's local clock
     tz: str | None = None  # IANA override; otherwise looked up from the coordinates
     open_only: bool = False
+    wheelchair: bool = False  # keep only venues tagged wheelchair=yes|designated in OSM
     limit: int = 8
     provider: str = "osm"
     menus: bool = False
@@ -84,7 +85,7 @@ def recommend(q: Query, http: Http, llm_client=None) -> Result:
     walk_source = apply_routing(venues, place, http, q.routing)
     use_llm = q.llm == "on" or (q.llm == "auto" and bool(os.environ.get("ANTHROPIC_API_KEY")))
     # Give Claude a wider pool to choose from; the deterministic path just takes the top N.
-    pool = rank(venues, q.use_case, diets=q.diets, party=q.party, open_only=q.open_only,
+    pool = rank(venues, q.use_case, diets=q.diets, party=q.party, open_only=q.open_only, wheelchair=q.wheelchair,
                 max_walk=q.max_walk, limit=min(q.limit * 2, 20) if use_llm else q.limit)
     items, source = pool[: q.limit], "deterministic"
     if use_llm and pool:

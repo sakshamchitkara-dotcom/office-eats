@@ -51,3 +51,16 @@ def test_rank_real_fixture_every_use_case():
         assert top == sorted(top, key=lambda s: -s.score)
         assert all(0 <= s.score <= 100 for s in top)
     assert all(s.venue.kind == "cafe" for s in rank(vs, "coffee", limit=3))
+
+
+def test_wheelchair_keeps_only_tagged_accessible_places():
+    vs = [mk(id=f"node/{t or 'none'}", tags={"wheelchair": t} if t else {}) for t in ("yes", "designated", "limited", "no", None)]
+    assert [s.venue.id for s in rank(vs, "lunch", wheelchair=True)] == ["node/yes", "node/designated"]
+    assert len(rank(vs, "lunch")) == 5
+
+
+def test_wheelchair_flag_on_the_recorded_fixture():
+    vs = parse_elements(load("overpass_adobe_800m.json"))
+    enrich(vs, ORIGIN)
+    picks = rank(vs, "lunch", wheelchair=True, limit=50)
+    assert len(picks) == 7 and all(s.venue.tags["wheelchair"] == "yes" for s in picks)

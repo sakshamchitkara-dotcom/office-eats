@@ -47,6 +47,7 @@ def add_query_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--at", dest="when", help="'now', ISO datetime, or e.g. 'fri 19:00' (local time at the office)")
     p.add_argument("--tz", help="office time zone, e.g. Europe/London (default: looked up from the coordinates)")
     p.add_argument("--open-only", action="store_true", help="drop venues known to be closed at --at")
+    p.add_argument("--wheelchair", action="store_true", help="only venues tagged wheelchair=yes (or designated) in OSM")
     p.add_argument("-n", "--limit", type=int, default=8)
     p.add_argument("--provider", choices=sorted(REGISTRY), default="osm")
     p.add_argument("--menus", action="store_true", help="look for menu links on venue websites (robots.txt respected)")
@@ -59,7 +60,7 @@ def add_query_args(p: argparse.ArgumentParser) -> None:
 
 def make_query(a: argparse.Namespace, location: str, name: str | None = None) -> Query:
     return Query(location=location, name=name, use_case=a.use_case, radius_m=a.radius, max_walk=a.max_walk,
-                 diets=a.diet, party=a.party, at=a.when, tz=a.tz, open_only=a.open_only, limit=a.limit,
+                 diets=a.diet, party=a.party, at=a.when, tz=a.tz, open_only=a.open_only, wheelchair=a.wheelchair, limit=a.limit,
                  provider=a.provider, menus=a.menus, llm=a.llm, routing=a.routing)
 
 

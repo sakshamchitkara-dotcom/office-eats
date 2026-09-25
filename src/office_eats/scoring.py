@@ -35,6 +35,10 @@ PROFILES: dict[str, Profile] = {
 }
 
 
+# OSM wheelchair=yes|designated: fully accessible. 'limited' (e.g. a step at the entrance) and untagged places are dropped.
+WHEELCHAIR_OK = {"yes", "designated"}
+
+
 @dataclass
 class Scored:
     venue: Venue
@@ -88,10 +92,11 @@ def score(v: Venue, p: Profile, party: int = 0) -> Scored:
 
 
 def rank(venues: list[Venue], use_case: str, *, diets: set[str] = frozenset(), party: int = 0,
-         open_only: bool = False, max_walk: float | None = None, limit: int = 10) -> list[Scored]:
+         open_only: bool = False, max_walk: float | None = None, limit: int = 10, wheelchair: bool = False) -> list[Scored]:
     p = PROFILES[use_case]
     pool = [v for v in venues
             if set(diets) <= v.diets
             and not (open_only and v.open_now is False)
+            and not (wheelchair and v.tags.get("wheelchair") not in WHEELCHAIR_OK)
             and (max_walk is None or v.walk_min <= max_walk)]
     return sorted((score(v, p, party) for v in pool), key=lambda s: (-s.score, s.venue.distance_m))[:limit]
