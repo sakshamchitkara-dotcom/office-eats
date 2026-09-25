@@ -28,3 +28,25 @@ def test_enrich_real_fixture_has_diet_signal():
     vs = enrich(parse_elements(load("overpass_adobe_800m.json")), origin)
     assert any(v.diets for v in vs)
     assert all(v.distance_m < 1000 for v in vs)  # around:800 plus way-center slack
+
+
+def test_price_hint():
+    from office_eats.enrich import price_hint
+    assert price_hint(Venue("n/1", "a", 0, 0, kind="fast_food")) == 1
+    assert price_hint(Venue("n/1", "a", 0, 0, cuisine=["steak_house"])) == 3
+    assert price_hint(Venue("n/1", "a", 0, 0, tags={"price_range": "$$$$"})) == 4
+    assert price_hint(Venue("n/1", "a", 0, 0, cuisine=["italian"])) == 2
+
+
+def test_provider_price_wins():
+    v = Venue("n/1", "a", 0, 0, kind="fast_food", price_level=3)
+    enrich([v], Place("o", 0, 0))
+    assert v.price_level == 3
+
+
+def test_group_size():
+    from office_eats.enrich import group_size
+    assert group_size(Venue("n/1", "a", 0, 0, tags={"capacity": "48"})) == 16
+    assert group_size(Venue("n/1", "a", 0, 0, kind="cafe", cuisine=["bubble_tea"])) == 4
+    big = Venue("way/1", "a", 0, 0, tags={"reservation": "yes", "outdoor_seating": "yes"})
+    assert group_size(big) == 8 + 4 + 4 + 2
