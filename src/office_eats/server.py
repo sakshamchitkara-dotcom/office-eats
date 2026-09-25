@@ -1,4 +1,5 @@
-"""Slack slash-command endpoint: POST /slack/command, e.g. `/eats dinner party:6 diet:vegan 415 Mission St, SF`.
+"""Slack endpoints: POST /slack/command (e.g. `/eats dinner party:6 diet:vegan 415 Mission St, SF`)
+and POST /slack/interact (Interactivity Request URL: vote buttons on polls).
 
 Slack wants an answer within 3 s, and Overpass can be slower, so we ack immediately and
 post the real answer to the request's response_url from a worker thread.
@@ -19,8 +20,11 @@ from .cache import Cache
 from .cli import parse_diets
 from .http import Http
 from .recommend import Query, recommend
+from .poll import VOTE_ACTION, parse_vote_value
+from .poll import to_slack as poll_to_slack
 from .scoring import PROFILES
 from .slack import post_webhook, to_slack
+from .store import Store, StoreError
 from .tz import parse_when
 
 USAGE = ("Usage: `/eats [lunch|dinner|catering|coffee] [diet:vegan,halal] [party:8] [at:fri 19:00] "
@@ -59,7 +63,7 @@ def parse_command(text: str) -> Query:
                  max_walk=float(opts["walk"]) if "walk" in opts else None, limit=min(int(opts.get("n", 5)), 10))
 
 
-def make_handler(secret: str | None, http: Http, worker=threading.Thread):
+def make_handler(secret: str | None, http: Http, worker=threading.Thread, store: Store | None = None):
     class Handler(BaseHTTPRequestHandler):
         def _send(self, code: int, payload: dict) -> None:
             body = json.dumps(payload).encode()
@@ -73,7 +77,7 @@ def make_handler(secret: str | None, http: Http, worker=threading.Thread):
             self._send(200, {"ok": True}) if self.path == "/healthz" else self._send(404, {"error": "not found"})
 
         def do_POST(self):
-            if self.path != "/slack/command":
+            if self.path not in ("/slack/command", "/slack/interact"):
                 return self._send(404, {"error": "not found"})
             length = int(self.headers.get("Content-Length") or 0)
             if length > MAX_BODY:
@@ -83,6 +87,8 @@ def make_handler(secret: str | None, http: Http, worker=threading.Thread):
                                                  self.headers.get("X-Slack-Signature", "")):
                 return self._send(401, {"error": "bad signature"})
             form = {k: v[0] for k, v in urllib.parse.parse_qs(body.decode()).items()}
+            if self.path == "/slack/interact":
+                return self._interact(form)
             try:
                 q = parse_command(form.get("text", ""))
             except ValueError as e:
@@ -100,6 +106,32 @@ def make_handler(secret: str | None, http: Http, worker=threading.Thread):
             except Exception as e:
                 print(f"office-eats: could not reply to Slack: {e}", file=sys.stderr)
 
+        def _interact(self, form: dict) -> None:
+            """Vote button click: record it, then redraw the poll in place via response_url."""
+            try:
+                payload = json.loads(form.get("payload", "{}"))
+                action = next(a for a in payload.get("actions", []) if a.get("action_id", "").startswith(VOTE_ACTION))
+                poll_id, choice = parse_vote_value(action["value"])
+                user = payload.get("user") or {}
+                voter = user.get("username") or user.get("name") or user["id"]
+            except (ValueError, KeyError, StopIteration, TypeError):
+                return self._send(400, {"error": "unsupported interaction"})
+            if store is None:
+                return self._send(503, {"error": "polls are not enabled"})
+            try:
+                store.vote(poll_id, voter, choice)
+                reply = {"replace_original": True, **poll_to_slack(store, poll_id)}
+            except StoreError as e:
+                reply = {"response_type": "ephemeral", "replace_original": False, "text": f"Vote not counted: {e}"}
+            self._send(200, {})  # Slack only needs a fast 200; the redraw goes to response_url
+            worker(target=self._reply, args=(reply, payload.get("response_url", "")), daemon=True).start()
+
+        def _reply(self, payload: dict, response_url: str) -> None:
+            try:
+                post_webhook(payload, response_url)
+            except Exception as e:
+                print(f"office-eats: could not reply to Slack: {e}", file=sys.stderr)
+
         def log_message(self, fmt, *args):
             sys.stderr.write("office-eats: " + fmt % args + "\n")
 
@@ -110,6 +142,7 @@ def serve(host: str = "127.0.0.1", port: int = 8080, insecure: bool = False) -> 
     secret = os.environ.get("SLACK_SIGNING_SECRET")
     if not secret and not insecure:
         raise SystemExit("SLACK_SIGNING_SECRET is required (use --insecure only for local testing)")
-    httpd = ThreadingHTTPServer((host, port), make_handler(None if insecure else secret, Http(cache=Cache())))
-    print(f"office-eats: listening on http://{host}:{port}/slack/command", file=sys.stderr)
+    handler = make_handler(None if insecure else secret, Http(cache=Cache()), store=Store())
+    httpd = ThreadingHTTPServer((host, port), handler)
+    print(f"office-eats: listening on http://{host}:{port} (/slack/command, /slack/interact)", file=sys.stderr)
     httpd.serve_forever()
