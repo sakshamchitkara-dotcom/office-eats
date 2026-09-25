@@ -61,10 +61,34 @@ SNACK_KINDS = {"fast_food", "cafe"}
 SNACK_CUISINES = {"coffee_shop", "bubble_tea", "ice_cream", "donut", "juice", "smoothie", "dessert"}
 
 
+# Chains whose price point is well known. Keys are lower-case OSM `brand` values (or the venue name).
+# ponytail: hand-kept list of common US/UK chains; brand:wikidata lookups if coverage ever matters.
+BRAND_PRICE = {
+    **dict.fromkeys(["mcdonald's", "burger king", "wendy's", "taco bell", "kfc", "subway", "jack in the box",
+                     "in-n-out burger", "chick-fil-a", "popeyes", "carl's jr.", "domino's", "pizza hut",
+                     "little caesars", "panda express", "chipotle", "chipotle mexican grill", "five guys",
+                     "shake shack", "starbucks", "dunkin'", "peet's coffee", "philz coffee", "blue bottle coffee",
+                     "tim hortons", "costa coffee", "caffè nero", "pret a manger", "greggs", "jollibee",
+                     "panera bread", "noodles & company", "jersey mike's subs", "jimmy john's"], 1),
+    **dict.fromkeys(["sweetgreen", "the cheesecake factory", "olive garden", "p.f. chang's", "buca di beppo",
+                     "california pizza kitchen", "nando's", "wagamama", "yard house", "bj's restaurant & brewhouse"], 2),
+    **dict.fromkeys(["benihana", "hillstone", "houston's", "maggiano's little italy"], 3),
+    **dict.fromkeys(["ruth's chris steak house", "morton's the steakhouse", "the capital grille",
+                     "fleming's prime steakhouse & wine bar", "nobu", "del frisco's double eagle steakhouse"], 4),
+}
+
+
+def _brand_key(text: str | None) -> str:
+    return (text or "").strip().lower().replace("\u2019", "'")
+
+
 def price_hint(v: Venue) -> tuple[int, str]:
     """(level 1-4, source). Source 'guess' means cuisine/kind heuristics only: low confidence."""
     if v.tags.get("price_range", "").count("$"):  # rare but explicit, e.g. "$$$"
         return max(1, min(4, v.tags["price_range"].count("$"))), "tag"
+    for key in (_brand_key(v.tags.get("brand")), _brand_key(v.name)):
+        if key in BRAND_PRICE:
+            return BRAND_PRICE[key], "brand"
     if v.kind in SNACK_KINDS or set(v.cuisine) & CHEAP:
         return 1, "guess"
     if set(v.cuisine) & PRICEY or v.tags.get("reservation") in ("yes", "required", "recommended"):
