@@ -165,3 +165,22 @@ def test_web_poll_page_votes_without_slack(running):
     status, _, page = web(base, f"/poll/{pid}")
     assert "Poll closed." in page and 'type="radio"' not in page
     assert web(base, "/poll/deadbeef")[0] == 404 and web(base, "/poll/../etc")[0] == 404
+
+
+def test_web_only_handler_has_no_slack_routes(fake_http):
+    store = Store(":memory:")
+    httpd = ThreadingHTTPServer(("127.0.0.1", 0), server.make_handler(None, fake_http({}), store=store, slack=False))
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{httpd.server_port}"
+    try:
+        assert post(base, b"text=lunch+1,1", {})[0] == 404  # unsigned Slack traffic never reaches the command handler
+        pid = store.create_poll("t", [{"id": "a", "name": "A", "url": "u", "walk_min": 1, "blurb": ""}] * 2)
+        assert web(base, f"/poll/{pid}", {"voter": "ana", "choice": "0"})[0] == 303
+    finally:
+        httpd.shutdown()
+
+
+def test_serve_needs_a_secret_unless_web_only(monkeypatch):
+    monkeypatch.delenv("SLACK_SIGNING_SECRET", raising=False)
+    with pytest.raises(SystemExit, match="--web-only"):
+        server.serve()

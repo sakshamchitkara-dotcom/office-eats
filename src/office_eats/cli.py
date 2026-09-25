@@ -215,7 +215,7 @@ def cmd_feedback(a: argparse.Namespace) -> int:
 def cmd_serve(a: argparse.Namespace) -> int:
     from .server import serve  # imports cli helpers, so keep it lazy
 
-    serve(a.host, a.port, a.insecure)
+    serve(a.host, a.port, a.insecure, a.web_only)
     return 0
 
 
@@ -292,10 +292,11 @@ def build_parser() -> argparse.ArgumentParser:
     fb.add_argument("--week", help="ISO week of the pick to rate, e.g. 2026-W39 (default: the latest pick)")
     fb.set_defaults(func=cmd_feedback)
 
-    s = sub.add_parser("serve", help="run the Slack slash-command endpoint")
+    s = sub.add_parser("serve", help="run the Slack endpoints and the web poll voting pages")
     s.add_argument("--host", default="127.0.0.1")
     s.add_argument("--port", type=int, default=8080)
     s.add_argument("--insecure", action="store_true", help="skip Slack signature checks (local testing only)")
+    s.add_argument("--web-only", action="store_true", help="only serve poll voting pages (/poll/<id>); no Slack secret needed")
     s.set_defaults(func=cmd_serve)
 
     c = sub.add_parser("clear-cache", help="delete cached API responses")

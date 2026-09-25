@@ -86,7 +86,7 @@ def _number(opts: dict, key: str, kind: type, lo: float, hi: float):
     return value
 
 
-def make_handler(secret: str | None, http: Http, worker=threading.Thread, store: Store | None = None):
+def make_handler(secret: str | None, http: Http, worker=threading.Thread, store: Store | None = None, slack: bool = True):
     class Handler(BaseHTTPRequestHandler):
         def _send(self, code: int, payload: dict) -> None:
             body = json.dumps(payload).encode()
@@ -137,7 +137,7 @@ def make_handler(secret: str | None, http: Http, worker=threading.Thread, store:
 
         def do_POST(self):
             poll_match = POLL_PATH.match(self.path) if store is not None else None
-            if self.path not in ("/slack/command", "/slack/interact") and not poll_match:
+            if not (slack and self.path in ("/slack/command", "/slack/interact")) and not poll_match:
                 return self._send(404, {"error": "not found"})
             length = int(self.headers.get("Content-Length") or 0)
             if length > MAX_BODY:
@@ -200,11 +200,13 @@ def make_handler(secret: str | None, http: Http, worker=threading.Thread, store:
     return Handler
 
 
-def serve(host: str = "127.0.0.1", port: int = 8080, insecure: bool = False) -> None:
+def serve(host: str = "127.0.0.1", port: int = 8080, insecure: bool = False, web_only: bool = False) -> None:
     secret = os.environ.get("SLACK_SIGNING_SECRET")
-    if not secret and not insecure:
-        raise SystemExit("SLACK_SIGNING_SECRET is required (use --insecure only for local testing)")
-    handler = make_handler(None if insecure else secret, Http(cache=Cache()), store=Store())
+    if not secret and not insecure and not web_only:
+        raise SystemExit("SLACK_SIGNING_SECRET is required (use --web-only for voting pages without Slack, "
+                         "or --insecure only for local testing)")
+    handler = make_handler(None if insecure else secret, Http(cache=Cache()), store=Store(), slack=not web_only)
     httpd = ThreadingHTTPServer((host, port), handler)
-    print(f"office-eats: listening on http://{host}:{port} (/slack/command, /slack/interact, /poll/<id>)", file=sys.stderr)
+    routes = "/poll/<id>" if web_only else "/slack/command, /slack/interact, /poll/<id>"
+    print(f"office-eats: listening on http://{host}:{port} ({routes})", file=sys.stderr)
     httpd.serve_forever()
