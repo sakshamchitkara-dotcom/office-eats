@@ -1,4 +1,4 @@
-"""Persistent team data in SQLite: lunch polls and votes (teams and rotation history live here too).
+"""Persistent team data in SQLite: lunch polls and votes, team profiles.
 
 Kept apart from the API cache so `office-eats clear-cache` never wipes votes.
 """
@@ -19,7 +19,10 @@ CREATE TABLE IF NOT EXISTS polls (id TEXT PRIMARY KEY, title TEXT NOT NULL, opti
                                   created REAL NOT NULL, closed INTEGER NOT NULL DEFAULT 0);
 CREATE TABLE IF NOT EXISTS votes (poll_id TEXT NOT NULL REFERENCES polls(id), voter TEXT NOT NULL,
                                   choice INTEGER NOT NULL, at REAL NOT NULL, PRIMARY KEY (poll_id, voter));
+CREATE TABLE IF NOT EXISTS teams (name TEXT PRIMARY KEY, location TEXT NOT NULL, office_name TEXT,
+                                  diets TEXT NOT NULL DEFAULT '[]', party INTEGER NOT NULL DEFAULT 0, tz TEXT);
 """
+TEAM_FIELDS = ("location", "office_name", "diets", "party", "tz")
 
 
 class StoreError(ValueError):
@@ -75,3 +78,30 @@ class Store:
         self.poll(poll_id)
         with self.lock, self.db:
             self.db.execute("UPDATE polls SET closed = 1 WHERE id = ?", (poll_id,))
+
+    # --- teams -------------------------------------------------------------------------------------------------
+    def set_team(self, name: str, **fields) -> dict:
+        """Create or update a team; fields left as None keep their stored value. diets is a set of diet names."""
+        if bad := set(fields) - set(TEAM_FIELDS):
+            raise StoreError(f"unknown team field(s) {sorted(bad)}")
+        try:
+            team = self.team(name)
+        except StoreError:
+            if not fields.get("location"):
+                raise StoreError(f"new team {name!r} needs an office location") from None
+            team = {"name": name, "location": "", "office_name": None, "diets": [], "party": 0, "tz": None}
+        team.update({k: v for k, v in fields.items() if v is not None})
+        team["diets"] = sorted(team["diets"])
+        with self.lock, self.db:
+            self.db.execute("INSERT OR REPLACE INTO teams VALUES (?, ?, ?, ?, ?, ?)",
+                            (name, team["location"], team["office_name"], json.dumps(team["diets"]), team["party"], team["tz"]))
+        return team
+
+    def team(self, name: str) -> dict:
+        row = self.db.execute("SELECT location, office_name, diets, party, tz FROM teams WHERE name = ?", (name,)).fetchone()
+        if not row:
+            raise StoreError(f"no team {name!r}; create it with: office-eats team set {name!r} --office ADDRESS")
+        return {"name": name, "location": row[0], "office_name": row[1], "diets": json.loads(row[2]), "party": row[3], "tz": row[4]}
+
+    def teams(self) -> list[dict]:
+        return [self.team(n) for (n,) in self.db.execute("SELECT name FROM teams ORDER BY name")]
