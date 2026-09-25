@@ -204,6 +204,14 @@ def cmd_rotate(a: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_feedback(a: argparse.Namespace) -> int:
+    store = make_store()
+    pick = store.rate(a.team, a.voter, 1 if a.vote == "up" else -1, a.week)
+    up, down = store.feedback(a.team)[pick["venue_id"]]
+    print(f"{a.team} {pick['week']} {pick['venue_name']}: {up} up, {down} down")
+    return 0
+
+
 def cmd_serve(a: argparse.Namespace) -> int:
     from .server import serve  # imports cli helpers, so keep it lazy
 
@@ -276,6 +284,13 @@ def build_parser() -> argparse.ArgumentParser:
     ro.add_argument("--slack", action="store_true", help="also post the pick to SLACK_WEBHOOK_URL")
     ro.add_argument("--no-cache", action="store_true")
     ro.set_defaults(func=cmd_rotate)
+
+    fb = sub.add_parser("feedback", help="thumbs up/down on a rotation pick; future rotations use it")
+    fb.add_argument("team")
+    fb.add_argument("voter")
+    fb.add_argument("vote", choices=["up", "down"])
+    fb.add_argument("--week", help="ISO week of the pick to rate, e.g. 2026-W39 (default: the latest pick)")
+    fb.set_defaults(func=cmd_feedback)
 
     s = sub.add_parser("serve", help="run the Slack slash-command endpoint")
     s.add_argument("--host", default="127.0.0.1")

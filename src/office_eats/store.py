@@ -27,6 +27,9 @@ CREATE_PICKS = """CREATE TABLE IF NOT EXISTS picks (team TEXT NOT NULL, week TEX
                                               venue_name TEXT NOT NULL, at REAL NOT NULL, PRIMARY KEY (team, week))"""
 CREATE_MEMBERS = """CREATE TABLE IF NOT EXISTS members (team TEXT NOT NULL, name TEXT NOT NULL, diets TEXT NOT NULL DEFAULT '[]',
                                                   PRIMARY KEY (team, name))"""
+CREATE_FEEDBACK = """CREATE TABLE IF NOT EXISTS feedback (team TEXT NOT NULL, week TEXT NOT NULL, venue_id TEXT NOT NULL,
+                                                    voter TEXT NOT NULL, vote INTEGER NOT NULL, at REAL NOT NULL,
+                                                    PRIMARY KEY (team, week, voter))"""
 TEAM_FIELDS = ("location", "office_name", "diets", "party", "tz")
 
 
@@ -43,6 +46,7 @@ class Store:
         self.db.executescript(SCHEMA)
         self.db.execute(CREATE_PICKS)
         self.db.execute(CREATE_MEMBERS)
+        self.db.execute(CREATE_FEEDBACK)
 
     # --- polls -------------------------------------------------------------------------------------------------
     def create_poll(self, title: str, options: list[dict]) -> str:
@@ -141,3 +145,24 @@ class Store:
         """Newest week first. Week keys are ISO weeks like 2026-W39, which sort correctly as text."""
         rows = self.db.execute("SELECT week, venue_id, venue_name FROM picks WHERE team = ? ORDER BY week DESC LIMIT ?", (team, limit))
         return [{"week": w, "venue_id": vid, "venue_name": name} for w, vid, name in rows]
+
+    # --- feedback after lunch ----------------------------------------------------------------------------------
+    def rate(self, team: str, voter: str, vote: int, week: str | None = None) -> dict:
+        """Thumbs up (+1) or down (-1) on a rotation pick, the latest one by default. Rating again changes it."""
+        if vote not in (1, -1):
+            raise StoreError("vote must be +1 or -1")
+        if not voter.strip():
+            raise StoreError("voter name required")
+        picks = self.picks(team)
+        pick = next((p for p in picks if week in (None, p["week"])), None)
+        if pick is None:
+            raise StoreError(f"team {team!r} has no pick{' for ' + week if week else ''} to rate yet")
+        with self.lock, self.db:
+            self.db.execute("INSERT OR REPLACE INTO feedback VALUES (?, ?, ?, ?, ?, ?)",
+                            (team, pick["week"], pick["venue_id"], voter.strip()[:80], vote, time.time()))
+        return pick
+
+    def feedback(self, team: str) -> dict[str, tuple[int, int]]:
+        """venue_id -> (thumbs up, thumbs down) across every week the team ate there."""
+        rows = self.db.execute("SELECT venue_id, SUM(vote > 0), SUM(vote < 0) FROM feedback WHERE team = ? GROUP BY venue_id", (team,))
+        return {vid: (up, down) for vid, up, down in rows}
