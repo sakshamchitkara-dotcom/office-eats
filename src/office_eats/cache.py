@@ -8,7 +8,8 @@ import sqlite3
 import time
 from pathlib import Path
 
-DEFAULT_PATH = Path(os.environ.get("OFFICE_EATS_CACHE", Path.home() / ".cache" / "office-eats" / "cache.sqlite3"))
+# expanduser: a value copied from .env.example ("~/...") must not create a literal "~" directory.
+DEFAULT_PATH = Path(os.environ.get("OFFICE_EATS_CACHE", Path.home() / ".cache" / "office-eats" / "cache.sqlite3")).expanduser()
 
 
 class Cache:
