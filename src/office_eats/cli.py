@@ -151,14 +151,27 @@ def _team_line(t: dict) -> str:
             f" · party: {t['party'] or '-'} · tz: {t['tz'] or 'auto'}")
 
 
+def _members_block(members: list[dict]) -> str:
+    return "\n".join(f"  {m['name']}: {', '.join(m['diets']) or 'no restrictions'}" for m in members) or "  (no members)"
+
+
 def cmd_team(a: argparse.Namespace) -> int:
     store = make_store()
     if a.team_cmd == "set":
         t = store.set_team(a.team, location=a.office, office_name=a.office_name, party=a.party, tz=a.tz,
                            diets=None if a.diet is None else parse_diets(a.diet))
         print(_team_line(t))
+    elif a.team_cmd == "member":
+        if a.remove:
+            store.remove_member(a.team, a.member)
+        else:
+            store.set_member(a.team, a.member, parse_diets(a.diet))
+        print(_team_line(store.team(a.team)))
+        print(_members_block(store.members(a.team)))
     elif a.team_cmd == "show":
         print(_team_line(store.team(a.team)))
+        if members := store.members(a.team):
+            print(_members_block(members))
     else:
         print("\n".join(_team_line(t) for t in store.teams()) or "(no teams yet)")
     return 0
@@ -240,7 +253,12 @@ def build_parser() -> argparse.ArgumentParser:
     ts.add_argument("--diet", help=f"team dietary needs, every pick must meet all of them ({', '.join(DIETS)}); '' clears")
     ts.add_argument("--party", type=int, help="usual party size")
     ts.add_argument("--tz", help="office time zone (default: looked up)")
-    tsub.add_parser("show", help="show one team").add_argument("team")
+    tm = tsub.add_parser("member", help="add or update a team member's dietary needs (or --remove them)")
+    tm.add_argument("team")
+    tm.add_argument("member")
+    tm.add_argument("--diet", default="", help=f"this person's needs ({', '.join(DIETS)}); empty = no restrictions")
+    tm.add_argument("--remove", action="store_true", help="remove this member")
+    tsub.add_parser("show", help="show one team and its members").add_argument("team")
     tsub.add_parser("list", help="list teams")
     t.set_defaults(func=cmd_team)
 
