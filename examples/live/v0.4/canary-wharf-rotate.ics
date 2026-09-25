@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//office-eats//rotate//EN
+BEGIN:VEVENT
+UID:2026-W40-Platform@office-eats
+DTSTAMP:20260925T101720Z
+DTSTART:20260929T113000Z
+DTEND:20260929T121500Z
+SUMMARY:Platform lunch: Greggs
+LOCATION:Greggs\, Cabot Square
+GEO:51.504947;-0.020010
+URL:https://www.openstreetmap.org/node/3835356850
+DESCRIPTION:Budget-friendly sandwich counter-service spot\, 1 min on foot\;
+  open when you need it\; can likely seat ~6.\nMap data © OpenStreetMap co
+ ntributors
+END:VEVENT
+END:VCALENDAR

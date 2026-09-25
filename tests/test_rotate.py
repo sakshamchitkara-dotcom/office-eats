@@ -106,3 +106,25 @@ def test_apply_feedback_caps_and_resorts():
     out = apply_feedback([a, b], {"a": (0, 9), "b": (1, 0)})
     assert [s.venue.id for s in out] == ["b", "a"] and (a.score, b.score) == (80, 104)
     assert a.reasons == ["team feedback 0 up / 9 down"]
+
+
+def test_rotate_writes_a_valid_ics(env, tmp_path):
+    ics = tmp_path / "lunch.ics"
+    assert cli.main(["rotate", "Platform", "--at", "2026-09-29 12:15", "--ics", str(ics)]) == 0
+    raw = ics.read_bytes().decode()
+    assert raw.startswith("BEGIN:VCALENDAR\r\n") and raw.endswith("END:VCALENDAR\r\n")
+    assert "DTSTART:20260929T191500Z\r\n" in raw and "DTEND:20260929T200000Z\r\n" in raw  # 12:15 PDT, 45 min
+    assert "UID:2026-W40-Platform@office-eats" in raw
+    assert all(len(line.encode()) <= 75 for line in raw.split("\r\n"))
+
+
+def test_ics_escapes_and_folds():
+    from datetime import datetime
+
+    from office_eats.rotate import to_ics
+    v = Venue("node/1", "Pho; Noodles, & Co\\" + "x" * 80, 51.5, -0.02)
+    out = to_ics("T", {"week": "2026-W40"}, Scored(v, 90, ["a"], "line1\nline2"), datetime(2026, 9, 29, 12, 0), None,
+                 now=datetime(2026, 9, 25))
+    assert "DTSTART:20260929T120000\r\n" in out  # no zone known: floating local time
+    unfolded = out.replace("\r\n ", "")
+    assert "SUMMARY:T lunch: Pho\\; Noodles\\, & Co\\\\xxx" in unfolded and "DESCRIPTION:line1\\nline2" in unfolded
