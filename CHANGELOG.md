@@ -2,6 +2,15 @@
 
 All notable changes to this project. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [SemVer](https://semver.org/).
 
+## [0.5.0] - 2026-09-25
+
+### Added
+- `opening_hours` date rules: dates, date ranges, months and the nth weekday of a month (`Dec 25 off`, `Dec 24 10:00-16:00`, `Dec 24-Jan 02 off`, `Nov Th[4] off`) are evaluated against the actual date. New Year's Eve spans past midnight carry into 1 January. Checked on every value in cached San Jose, San Francisco and London data (`examples/live/v0.5/holiday-hours.txt`).
+- Lunch feedback fades with age: each vote's weight halves every 26 weeks after the week it rated. `rotate --feedback-half-life WEEKS` changes that, and `0` keeps votes at full weight.
+
+### Fixed
+- `opening_hours` values that list `PH` next to weekdays (`Mo-Su,PH 16:00-02:00`, `PH,Mo-Su 11:00-22:00`) are read as their weekday rule instead of making the venue's hours unknown.
+
 ## [0.4.0] - 2026-09-25
 
 ### Added
