@@ -70,3 +70,12 @@ def test_batch_writes_one_file_per_office(offline, tmp_path):
     assert files == ["adobe-hq.md", "second-office.md"]
     assert (tmp_path / "out" / "adobe-hq.md").read_text().startswith("# Client dinner near Adobe HQ")
     assert "Dietary filter: vegan" in (tmp_path / "out" / "second-office.md").read_text()
+
+
+def test_batch_bad_row_does_not_stop_the_rest(offline, tmp_path, capsys):
+    csv = tmp_path / "o.csv"
+    csv.write_text("name,lat,lon,diet,party\nBad Diet,37.33,-121.89,paleo,\nBad Party,37.33,-121.89,,six\nGood,37.33,-121.89,,4\n")
+    assert cli.main(["batch", str(csv), "--out-dir", str(tmp_path / "out")]) == 1
+    assert [f.name for f in (tmp_path / "out").iterdir()] == ["good.txt"]
+    err = capsys.readouterr().err
+    assert "Bad Diet: unknown diet" in err and "Bad Party: invalid literal" in err
