@@ -46,3 +46,23 @@ def test_error_exit_code(monkeypatch, fake_http, capsys):
     monkeypatch.setattr(cli, "make_http", lambda a: fake_http({"nominatim": []}))
     assert cli.main(["recommend", "Atlantis"]) == 2
     assert "no geocoding result" in capsys.readouterr().err
+
+
+def test_read_offices(tmp_path):
+    p = tmp_path / "o.csv"
+    p.write_text("Name,Address,lat,lon,diet\nA,1 Main St,,,vegan\nB,,37.1,-122.2,\n")
+    a, b = cli.read_offices(str(p))
+    assert (a["location"], a["diet"], b["location"]) == ("1 Main St", "vegan", "37.1,-122.2")
+    p.write_text("name,address\nC,\n")
+    with pytest.raises(ValueError, match=":2"):
+        cli.read_offices(str(p))
+
+
+def test_batch_writes_one_file_per_office(offline, tmp_path):
+    csv = tmp_path / "o.csv"
+    csv.write_text("name,lat,lon,use_case,diet\nAdobe HQ,37.3294,-121.8947,dinner,\nSecond Office!,37.33,-121.89,,vegan\n")
+    assert cli.main(["batch", str(csv), "--out-dir", str(tmp_path / "out"), "-f", "md"]) == 0
+    files = sorted(f.name for f in (tmp_path / "out").iterdir())
+    assert files == ["adobe-hq.md", "second-office.md"]
+    assert (tmp_path / "out" / "adobe-hq.md").read_text().startswith("# Client dinner near Adobe HQ")
+    assert "Dietary filter: vegan" in (tmp_path / "out" / "second-office.md").read_text()
