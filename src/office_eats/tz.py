@@ -71,9 +71,12 @@ def parse_when(text: str | None, now: datetime | None = None) -> datetime | None
     if t == "now":
         return now.replace(second=0, microsecond=0)
     parts = t.split()
-    if len(parts) == 2 and parts[0][:3] in DAY_NAMES:
-        hh, mm = map(int, parts[1].split(":"))
-        ahead = (DAY_NAMES.index(parts[0][:3]) - now.weekday()) % 7
-        when = (now + timedelta(days=ahead)).replace(hour=hh, minute=mm, second=0, microsecond=0)
-        return when if when >= now else when + timedelta(days=7)
-    return datetime.fromisoformat(text)
+    try:
+        if len(parts) == 2 and parts[0][:3] in DAY_NAMES:
+            hh, mm = map(int, parts[1].split(":"))
+            ahead = (DAY_NAMES.index(parts[0][:3]) - now.weekday()) % 7
+            when = (now + timedelta(days=ahead)).replace(hour=hh, minute=mm, second=0, microsecond=0)
+            return when if when >= now else when + timedelta(days=7)
+        return datetime.fromisoformat(text.strip())
+    except ValueError:
+        raise ValueError(f"can't read time {text!r}; use 'now', 'fri 19:00' or '2026-10-01 12:30'") from None
