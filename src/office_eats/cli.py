@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 import re
 import sys
 from datetime import datetime, timedelta
@@ -16,7 +17,9 @@ from .http import Http, HttpError
 from .providers import REGISTRY, ProviderError
 from .recommend import Query, recommend
 from .scoring import PROFILES
+from .slack import post_webhook, to_slack
 
+FORMATS = {**report.FORMATS, "slack": lambda r: json.dumps(to_slack(r), indent=2, ensure_ascii=False)}
 DAY_NAMES = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
 
 
@@ -58,7 +61,7 @@ def add_query_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--provider", choices=sorted(REGISTRY), default="osm")
     p.add_argument("--menus", action="store_true", help="look for menu links on venue websites (robots.txt respected)")
     p.add_argument("--llm", choices=["auto", "on", "off"], default="auto")
-    p.add_argument("-f", "--format", choices=sorted(report.FORMATS), default="table")
+    p.add_argument("-f", "--format", choices=sorted(FORMATS), default="table")
     p.add_argument("--no-cache", action="store_true")
 
 
@@ -74,7 +77,10 @@ def make_http(a: argparse.Namespace) -> Http:
 
 def cmd_recommend(a: argparse.Namespace) -> int:
     result = recommend(make_query(a, a.location, a.name), make_http(a))
-    text = report.FORMATS[a.format](result)
+    if a.slack:
+        post_webhook(to_slack(result))
+        print("posted to Slack", file=sys.stderr)
+    text = FORMATS[a.format](result)
     if a.out:
         Path(a.out).write_text(text + "\n")
         print(f"wrote {a.out}", file=sys.stderr)
@@ -101,14 +107,14 @@ def cmd_batch(a: argparse.Namespace) -> int:
     out_dir = Path(a.out_dir) if a.out_dir else None
     if out_dir:
         out_dir.mkdir(parents=True, exist_ok=True)
-    ext = {"table": "txt", "md": "md", "html": "html", "json": "json"}[a.format]
+    ext = {"table": "txt", "md": "md", "html": "html", "json": "json", "slack": "json"}[a.format]
     for office in read_offices(a.csv):
         q = make_query(a, office["location"], office["name"])
         q.use_case = office.get("use_case") or q.use_case
         q.diets = parse_diets(office.get("diet")) or q.diets
         q.party = int(office.get("party") or q.party)
         try:
-            text = report.FORMATS[a.format](recommend(q, http))
+            text = FORMATS[a.format](recommend(q, http))
         except (GeocodeError, ProviderError, HttpError, ValueError) as e:
             failures += 1
             print(f"office-eats: {office['name']}: {e}", file=sys.stderr)
@@ -130,6 +136,7 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("location", help="address, company name, or 'lat,lon'")
     r.add_argument("--name", help="display name for the office")
     r.add_argument("-o", "--out", help="write to file instead of stdout")
+    r.add_argument("--slack", action="store_true", help="also post to SLACK_WEBHOOK_URL")
     add_query_args(r)
     r.set_defaults(func=cmd_recommend)
 
