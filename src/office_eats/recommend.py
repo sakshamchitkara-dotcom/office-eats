@@ -64,7 +64,7 @@ def recommend(q: Query, http: Http, llm_client=None) -> Result:
         raise ValueError(f"use case must be one of {sorted(PROFILES)}")
     place = geocode(q.location, http, name=q.name)
     venues = get_provider(q.provider, http).nearby(place.lat, place.lon, q.radius())
-    enrich(venues, place, q.when)
+    enrich(venues, place, q.when, PROFILES[q.use_case].stay_min)
     use_llm = q.llm == "on" or (q.llm == "auto" and bool(os.environ.get("ANTHROPIC_API_KEY")))
     # Give Claude a wider pool to choose from; the deterministic path just takes the top N.
     pool = rank(venues, q.use_case, diets=q.diets, party=q.party, open_only=q.open_only,
