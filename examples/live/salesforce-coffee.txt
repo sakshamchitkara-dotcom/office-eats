@@ -1,0 +1,10 @@
+Coffee meeting near Salesforce Tower
+Salesforce Tower, 415, Mission Street, South of Market, Financial District, San Francisco, California, 94105, United States  (219 candidates)
+
+#  Score  Name                         Kind  Cuisine      Walk  $  Diet  Open
+-  -----  ---------------------------  ----  -----------  ----  -  ----  ----
+1  88     Andytown Coffee Roasters     cafe  coffee_shop  2m    $  -     yes
+2  88     ¡Venga! Empanadas            cafe  argentinian  2m    $  -     yes
+3  87     Estas Manos Coffee Roasters  cafe  coffee_shop  1m    $  -     yes
+4  86     Starbucks                    cafe  coffee_shop  1m    $  -     ?
+5  84     Special Xtra                 cafe  coffee_shop  3m    $  -     yes
