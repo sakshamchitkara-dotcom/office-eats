@@ -56,3 +56,14 @@ def test_llm_success_path(fake_http):
     r = recommend(Query("37.33,-121.89", llm="on", limit=3), fake_http(routes()), llm_client=c)
     assert r.blurb_source.startswith("claude") and r.items[0].venue.id == pick and r.items[0].blurb == "Chosen by Claude."
     assert len(json.loads(c.kwargs["messages"][0]["content"])["candidates"]) == 6
+
+
+def test_routing_changes_ranking_inputs(fake_http):
+    def osrm(url, data):
+        n = url.split("/foot/")[1].split("?")[0].count(";")
+        return {"code": "Ok", "durations": [[0] + [600.0] * n], "distances": [[0] + [750.0] * n]}
+
+    r = recommend(Query("37.33,-121.89", routing="osrm", limit=3), fake_http({**routes(), "routed-foot": osrm}))
+    assert r.walk_source == "osrm walking routes"
+    assert all(s.venue.walk_min == 10.0 and s.venue.walk_routed for s in r.items)
+    assert recommend(Query("37.33,-121.89", limit=1), fake_http(routes())).walk_source == "straight-line x1.3"

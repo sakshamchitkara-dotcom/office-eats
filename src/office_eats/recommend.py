@@ -12,6 +12,7 @@ from .geocode import geocode
 from .http import Http
 from .models import WALK_M_PER_MIN, Place
 from .providers import get_provider
+from .routing import apply_routing
 from .scoring import PROFILES, Scored, rank
 from .websites import add_menu_links
 
@@ -33,6 +34,7 @@ class Query:
     provider: str = "osm"
     menus: bool = False
     llm: str = "auto"  # auto (use Claude if ANTHROPIC_API_KEY is set) | on | off
+    routing: str = "none"  # none | osrm | ors
 
     def radius(self) -> int:
         if self.radius_m:
@@ -49,13 +51,14 @@ class Result:
     items: list[Scored]
     candidates: int
     blurb_source: str = "deterministic"
+    walk_source: str = "straight-line x1.3"
 
     def to_dict(self) -> dict:
         q = asdict(self.query)
         q["diets"] = sorted(self.query.diets)
         q["when"] = self.query.when.isoformat() if self.query.when else None
         return {"query": q, "use_case_label": PROFILES[self.query.use_case].label, "place": asdict(self.place),
-                "candidates": self.candidates, "blurb_source": self.blurb_source,
+                "candidates": self.candidates, "blurb_source": self.blurb_source, "walk_source": self.walk_source,
                 "recommendations": [s.to_dict() for s in self.items]}
 
 
@@ -65,6 +68,7 @@ def recommend(q: Query, http: Http, llm_client=None) -> Result:
     place = geocode(q.location, http, name=q.name)
     venues = get_provider(q.provider, http).nearby(place.lat, place.lon, q.radius())
     enrich(venues, place, q.when, PROFILES[q.use_case].stay_min)
+    walk_source = apply_routing(venues, place, http, q.routing)
     use_llm = q.llm == "on" or (q.llm == "auto" and bool(os.environ.get("ANTHROPIC_API_KEY")))
     # Give Claude a wider pool to choose from; the deterministic path just takes the top N.
     pool = rank(venues, q.use_case, diets=q.diets, party=q.party, open_only=q.open_only,
@@ -82,4 +86,4 @@ def recommend(q: Query, http: Http, llm_client=None) -> Result:
         apply_deterministic(items, q.use_case)
     if q.menus:
         add_menu_links([s.venue for s in items], http)
-    return Result(q, place, items, candidates=len(venues), blurb_source=source)
+    return Result(q, place, items, candidates=len(venues), blurb_source=source, walk_source=walk_source)
