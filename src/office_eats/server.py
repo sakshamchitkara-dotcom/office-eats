@@ -25,10 +25,11 @@ from .poll import to_slack as poll_to_slack
 from .scoring import PROFILES
 from .slack import post_webhook, to_slack
 from .store import Store, StoreError
-from .tz import parse_when
+from .routing import ENGINES as ROUTING_ENGINES
+from .tz import office_tz, parse_when
 
-USAGE = ("Usage: `/eats [lunch|dinner|catering|coffee] [diet:vegan,halal] [party:8] [at:fri 19:00] "
-         "[walk:10] <address or lat,lon>`")
+USAGE = ("Usage: `/eats [lunch|dinner|catering|coffee] [diet:vegan,halal] [party:8] [at:fri_19:00] "
+         "[walk:10] [route:osrm] [tz:Europe/London] <address or lat,lon>`")
 MAX_BODY = 16 * 1024
 
 
@@ -47,7 +48,7 @@ def parse_command(text: str) -> Query:
     words, opts, rest = text.split(), {}, []
     for w in words:
         k, sep, v = w.partition(":")
-        if sep and k.lower() in ("diet", "party", "at", "walk", "n") and v:
+        if sep and k.lower() in ("diet", "party", "at", "walk", "n", "route", "tz") and v:
             opts[k.lower()] = v
         else:
             rest.append(w)
@@ -58,8 +59,13 @@ def parse_command(text: str) -> Query:
         raise ValueError(USAGE)
     at = opts["at"].replace("_", " ") if "at" in opts else None
     parse_when(at)  # fail fast on a bad time; the office's local clock is applied later in recommend()
+    route = opts.get("route", "none")
+    if route not in ROUTING_ENGINES:
+        raise ValueError(f"route must be one of {', '.join(ROUTING_ENGINES)}")
+    if "tz" in opts:
+        office_tz(0, 0, override=opts["tz"])  # validates the name
     return Query(" ".join(rest), use_case=use_case, diets=parse_diets(opts.get("diet")),
-                 party=int(opts.get("party", 0)), at=at,
+                 party=int(opts.get("party", 0)), at=at, routing=route, tz=opts.get("tz"),
                  max_walk=float(opts["walk"]) if "walk" in opts else None, limit=min(int(opts.get("n", 5)), 10))
 
 
