@@ -179,7 +179,7 @@ def cmd_team(a: argparse.Namespace) -> int:
 
 def cmd_rotate(a: argparse.Namespace) -> int:
     from .models import osm_link
-    from .rotate import rotate
+    from .rotate import rotate, uncovered
 
     store = make_store()
     if a.history:
@@ -191,6 +191,10 @@ def cmd_rotate(a: argparse.Namespace) -> int:
     if chosen:
         v = chosen.venue
         lines += [f"  {v.walk_min:.0f} min walk · {', '.join(v.cuisine[:2]) or v.kind} · {chosen.blurb}", f"  {osm_link(v)}"]
+        if members := [m for m in store.members(a.team) if m["diets"]]:
+            missing = uncovered(v, members)
+            lines.append(f"  Diet coverage: {len(members) - len(missing)}/{len(members)} members with dietary needs"
+                         + (f"; no tagged option for {', '.join(missing)}" if missing else ""))
     text = "\n".join(lines)
     if a.slack:
         from .slack import esc
