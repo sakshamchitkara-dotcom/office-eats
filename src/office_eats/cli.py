@@ -23,12 +23,16 @@ from .store import Store, StoreError
 FORMATS = {**report.FORMATS, "slack": lambda r: json.dumps(to_slack(r), indent=2, ensure_ascii=False)}
 
 
+class DietError(argparse.ArgumentTypeError, ValueError):
+    """argparse shows its message for --diet; everywhere else (CSV rows, /eats, team profiles) it is a ValueError."""
+
+
 def parse_diets(text: str | None) -> set[str]:
     if not text:
         return set()
     out = {d.strip().lower().replace("-", "_") for d in text.split(",") if d.strip()}
     if bad := out - set(DIETS):
-        raise argparse.ArgumentTypeError(f"unknown diet(s) {sorted(bad)}; choose from {', '.join(DIETS)}")
+        raise DietError(f"unknown diet(s) {sorted(bad)}; choose from {', '.join(DIETS)}")
     return out
 
 
@@ -266,7 +270,7 @@ def main(argv: list[str] | None = None) -> int:
     a = build_parser().parse_args(argv)
     try:
         return a.func(a)
-    except (GeocodeError, ProviderError, HttpError, StoreError, ValueError, argparse.ArgumentTypeError) as e:
+    except (GeocodeError, ProviderError, HttpError, StoreError, ValueError) as e:
         print(f"office-eats: error: {e}", file=sys.stderr)
         return 2
 

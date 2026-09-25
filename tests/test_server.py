@@ -37,6 +37,8 @@ def test_parse_command():
         server.parse_command("coffee")
     q = server.parse_command("lunch route:osrm tz:Europe/London at:fri_12:30 1 Canada Square, London")
     assert (q.routing, q.tz, q.at, q.location) == ("osrm", "Europe/London", "fri 12:30", "1 Canada Square, London")
+    with pytest.raises(ValueError, match="unknown diet"):
+        server.parse_command("diet:paleo 1,1")
     with pytest.raises(ValueError, match="route must be"):
         server.parse_command("route:google 1,1")
     with pytest.raises(ValueError, match="unknown time zone"):
@@ -116,3 +118,11 @@ def test_interact_rejects_unsigned_and_junk(running):
     ts = int(time.time())
     assert post(base, body, {"X-Slack-Request-Timestamp": str(ts), "X-Slack-Signature": sign(body, ts)}, "/slack/interact")[0] == 400
     assert posted == []
+
+
+def test_bad_diet_gets_a_usage_reply_not_a_crash(running):
+    base, posted, _ = running
+    body = urllib.parse.urlencode({"text": "diet:paleo 1,1", "response_url": "https://hooks.slack.com/commands/X"}).encode()
+    ts = int(time.time())
+    status, ack = post(base, body, {"X-Slack-Request-Timestamp": str(ts), "X-Slack-Signature": sign(body, ts)})
+    assert status == 200 and "unknown diet" in ack["text"] and posted == []
