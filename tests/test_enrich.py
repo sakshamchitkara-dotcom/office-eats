@@ -32,16 +32,17 @@ def test_enrich_real_fixture_has_diet_signal():
 
 def test_price_hint():
     from office_eats.enrich import price_hint
-    assert price_hint(Venue("n/1", "a", 0, 0, kind="fast_food")) == 1
-    assert price_hint(Venue("n/1", "a", 0, 0, cuisine=["steak_house"])) == 3
-    assert price_hint(Venue("n/1", "a", 0, 0, tags={"price_range": "$$$$"})) == 4
-    assert price_hint(Venue("n/1", "a", 0, 0, cuisine=["italian"])) == 2
+    assert price_hint(Venue("n/1", "a", 0, 0, kind="fast_food")) == (1, "guess")
+    assert price_hint(Venue("n/1", "a", 0, 0, cuisine=["steak_house"])) == (3, "guess")
+    assert price_hint(Venue("n/1", "a", 0, 0, tags={"price_range": "$$$$"})) == (4, "tag")
+    assert price_hint(Venue("n/1", "a", 0, 0, tags={"price_range": "10-20"})) == (2, "guess")
+    assert price_hint(Venue("n/1", "a", 0, 0, cuisine=["italian"])) == (2, "guess")
 
 
 def test_provider_price_wins():
     v = Venue("n/1", "a", 0, 0, kind="fast_food", price_level=3)
     enrich([v], Place("o", 0, 0))
-    assert v.price_level == 3
+    assert (v.price_level, v.price_source) == (3, "provider")
 
 
 def test_group_size():

@@ -41,7 +41,9 @@ def enrich(venues: list[Venue], origin: Place, when: datetime | None = None, sta
         v.diets |= diets(v.tags, v.cuisine)
         v.menu_url = v.menu_url or v.tags.get("website:menu")
         if v.price_level is None:
-            v.price_level = price_hint(v)
+            v.price_level, v.price_source = price_hint(v)
+        elif v.price_source is None:
+            v.price_source = "provider"
         v.group_size = v.group_size or group_size(v)
         v.distance_m = haversine_m(origin.lat, origin.lon, v.lat, v.lon)
         v.walk_min = walk_minutes(v.distance_m)
@@ -59,14 +61,15 @@ SNACK_KINDS = {"fast_food", "cafe"}
 SNACK_CUISINES = {"coffee_shop", "bubble_tea", "ice_cream", "donut", "juice", "smoothie", "dessert"}
 
 
-def price_hint(v: Venue) -> int:
-    if v.tags.get("price_range"):  # rare but explicit, e.g. "$$$"
-        return max(1, min(4, v.tags["price_range"].count("$")))
+def price_hint(v: Venue) -> tuple[int, str]:
+    """(level 1-4, source). Source 'guess' means cuisine/kind heuristics only: low confidence."""
+    if v.tags.get("price_range", "").count("$"):  # rare but explicit, e.g. "$$$"
+        return max(1, min(4, v.tags["price_range"].count("$"))), "tag"
     if v.kind in SNACK_KINDS or set(v.cuisine) & CHEAP:
-        return 1
+        return 1, "guess"
     if set(v.cuisine) & PRICEY or v.tags.get("reservation") in ("yes", "required", "recommended"):
-        return 3
-    return 2
+        return 3, "guess"
+    return 2, "guess"
 
 
 def group_size(v: Venue) -> int:

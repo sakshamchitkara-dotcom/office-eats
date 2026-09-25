@@ -18,14 +18,17 @@ def safe_url(url: str | None) -> str | None:
     return None
 
 
-def _price(level: int | None) -> str:
-    return "$" * level if level else "?"
+def _price(v) -> str:
+    """'$$' when the price came from a provider/tag/brand, '~$$' when it is only a heuristic guess."""
+    if not v.price_level:
+        return "?"
+    return ("~" if v.price_source == "guess" else "") + "$" * v.price_level
 
 
 def _row(i: int, s) -> list[str]:
     v = s.venue
     return [str(i), f"{s.score:.0f}", v.name, v.kind, ", ".join(v.cuisine[:2]) or "-", f"{v.walk_min:.0f}m",
-            _price(v.price_level), "/".join(sorted(v.diets)) or "-", OPEN[v.open_now]]
+            _price(v), "/".join(sorted(v.diets)) or "-", OPEN[v.open_now]]
 
 
 HEAD = ["#", "Score", "Name", "Kind", "Cuisine", "Walk", "$", "Diet", "Open"]
@@ -59,7 +62,7 @@ def markdown(r: Result) -> str:
         v = s.venue
         md_name = v.name.replace("[", "\\[").replace("]", "\\]")
         out.append(f"## {i}. {md_name} ({s.score:.0f}/100)")
-        out.append(f"- {v.kind}, {', '.join(v.cuisine) or 'cuisine unknown'}, {_price(v.price_level)}, "
+        out.append(f"- {v.kind}, {', '.join(v.cuisine) or 'cuisine unknown'}, {_price(v)}, "
                    f"{v.walk_min:.0f} min walk ({v.distance_m:.0f} m)")
         if v.opening_hours:
             out.append(f"- Hours: `{v.opening_hours}` (open for the visit: {OPEN[v.open_now]})")
@@ -71,7 +74,7 @@ def markdown(r: Result) -> str:
         out.append("- " + " · ".join(links))
         out.append(f"- Why: {s.blurb or '; '.join(s.reasons)}")
         out.append("")
-    out.append("Data © OpenStreetMap contributors, ODbL 1.0.")
+    out.append("Prices marked ~ are guesses from cuisine and venue type. Data © OpenStreetMap contributors, ODbL 1.0.")
     return "\n".join(out)
 
 
@@ -87,7 +90,7 @@ def to_html(r: Result) -> str:
             links.append(f'<a href="{e(menu)}" rel="nofollow">menu</a>')
         rows.append(
             f"<tr><td>{i}</td><td>{s.score:.0f}</td><td><strong>{e(v.name)}</strong><br><small>{e(s.blurb or '; '.join(s.reasons))}</small></td>"
-            f"<td>{e(', '.join(v.cuisine[:3]) or v.kind)}</td><td>{v.walk_min:.0f} min</td><td>{_price(v.price_level)}</td>"
+            f"<td>{e(', '.join(v.cuisine[:3]) or v.kind)}</td><td>{v.walk_min:.0f} min</td><td>{_price(v)}</td>"
             f"<td>{e('/'.join(sorted(v.diets)) or '-')}</td><td>{OPEN[v.open_now]}</td><td>{' · '.join(links)}</td></tr>")
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
