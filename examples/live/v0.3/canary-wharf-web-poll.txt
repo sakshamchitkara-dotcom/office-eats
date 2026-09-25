@@ -1,0 +1,35 @@
+$ office-eats poll create '1 Canada Square, London' --name 'One Canada Square' --at '2026-09-29 12:30'
+created poll 7b3921c8
+Where should we eat near One Canada Square?  (poll 7b3921c8)
+1. Greggs  [0]  1 min walk
+2. Neat  [0]  1 min walk
+3. Wasabi  [0]  1 min walk
+4. Pret A Manger  [0]  1 min walk
+$ office-eats serve --web-only --port 8765 &
+# The form field "choice" is 0-based: choice=1 is option 2.
+$ curl -si -d 'voter=ana&choice=1' http://127.0.0.1:8765/poll/7b3921c8
+HTTP/1.0 303 See Other
+Location: /poll/7b3921c8?voted=1
+$ curl -si -d 'voter=bo&choice=1' http://127.0.0.1:8765/poll/7b3921c8
+HTTP/1.0 303 See Other
+Location: /poll/7b3921c8?voted=1
+$ curl -si -d 'voter=cy&choice=3' http://127.0.0.1:8765/poll/7b3921c8
+HTTP/1.0 303 See Other
+Location: /poll/7b3921c8?voted=1
+$ curl -si -d 'voter=eve&choice=0' -H 'Origin: https://evil.example' http://127.0.0.1:8765/poll/7b3921c8
+HTTP/1.0 403 Forbidden
+{"error": "cross-site vote refused"}
+
+$ curl -si -d 'voter=dee&choice=9' http://127.0.0.1:8765/poll/7b3921c8
+HTTP/1.0 400 Bad Request
+<h1>Where should we eat near One Canada Square?</h1><p role="status"><strong>Vote not counted: choice must be 1-4</strong></p>
+$ curl -si -X POST -d 'text=lunch+1,1' http://127.0.0.1:8765/slack/command
+HTTP/1.0 404 Not Found
+$ office-eats poll tally 7b3921c8
+Where should we eat near One Canada Square?  (poll 7b3921c8)
+1. Greggs  [0]  1 min walk
+2. Neat  [2]  1 min walk  - ana, bo
+3. Wasabi  [0]  1 min walk
+4. Pret A Manger  [1]  1 min walk  - cy
+Leading: Neat
+# then 'fay' voted for option 3 from Chromium via the page's form (Playwright): 303 -> ?voted=1
