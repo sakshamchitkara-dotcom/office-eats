@@ -87,3 +87,22 @@ def test_by_coverage_is_stable():
     a, b, c = items("a", "b", "c")
     b.venue.diets = {"vegan", "vegetarian"}
     assert [s.venue.id for s in by_coverage([a, b, c], [{"name": "ana", "diets": ["vegetarian"]}])] == ["b", "a", "c"]
+
+
+def test_feedback_moves_places_up_and_down(env, capsys):
+    store, http = env
+    first = rotate(store, "Platform", http, at="2026-09-07 12:00")[0]
+    assert cli.main(["feedback", "Platform", "ana", "down"]) == 0
+    assert cli.main(["feedback", "Platform", "bo", "down"]) == 0
+    assert capsys.readouterr().out.endswith(f"Platform 2026-W37 {first['venue_name']}: 0 up, 2 down\n")
+    # Long after the repeat window, the disliked place no longer tops an otherwise identical ranking.
+    later = rotate(store, "Platform", http, at="2027-03-01 12:00", avoid_weeks=0)[0]
+    assert later["venue_id"] != first["venue_id"]
+
+
+def test_apply_feedback_caps_and_resorts():
+    from office_eats.rotate import apply_feedback
+    a, b = items("a", "b")  # scores 100, 99
+    out = apply_feedback([a, b], {"a": (0, 9), "b": (1, 0)})
+    assert [s.venue.id for s in out] == ["b", "a"] and (a.score, b.score) == (80, 104)
+    assert a.reasons == ["team feedback 0 up / 9 down"]
