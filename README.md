@@ -148,11 +148,10 @@ The Nominatim and Overpass fixtures in `tests/fixtures/` were recorded from real
 
 ## Limitations
 
-- OSM has no prices. Price level comes from cuisine and venue kind, so a caviar bar tagged `cafe` reads as `$`. Provider prices, when available, always override the heuristic.
 - Group size is a heuristic. It uses `capacity` when that tag is mapped, and otherwise guesses from the venue kind, `reservation`, building footprint and outdoor seating.
-- OSM price data is still thin. Outside the chain and keyword tables, prices are guesses, and reports mark them with `~`.
+- OSM has almost no price data. Outside the chain and keyword tables, prices are guesses from cuisine and venue kind, and reports mark them with `~`. Provider prices, when available, always override them.
 - Walking time is straight-line distance × 1.3 at 80 m/min unless you pass `--routing`. The public OSRM server has no SLA, so any routing failure falls back to that estimate with a warning.
-- `opening_hours` support covers weekday rules, overnight spans, `off` and `24/7`. Public-holiday, month and sunrise rules are ignored, and a venue with unparseable hours is treated as unknown rather than guessed.
+- `opening_hours` support covers weekday rules, overnight spans, `off` and `24/7`. Public-holiday, date, month and sunrise rules are skipped (so `Mo-Su 11:00-22:00; Dec 25 off` reads as open every day, including 25 December), and a venue with unparseable hours is treated as unknown rather than guessed.
 - Rotation diets are a team-wide hard filter. A team that combines several strict diets (for example vegan, kosher and halal) may get no matches.
 - Web voting outside Slack is CLI-only (`poll vote`). There is no standalone voting page.
 
