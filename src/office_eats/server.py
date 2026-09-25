@@ -16,11 +16,12 @@ import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from .cache import Cache
-from .cli import parse_diets, parse_when
+from .cli import parse_diets
 from .http import Http
 from .recommend import Query, recommend
 from .scoring import PROFILES
 from .slack import post_webhook, to_slack
+from .tz import parse_when
 
 USAGE = ("Usage: `/eats [lunch|dinner|catering|coffee] [diet:vegan,halal] [party:8] [at:fri 19:00] "
          "[walk:10] <address or lat,lon>`")
@@ -51,8 +52,10 @@ def parse_command(text: str) -> Query:
         use_case = rest.pop(0).lower()
     if not rest:
         raise ValueError(USAGE)
+    at = opts["at"].replace("_", " ") if "at" in opts else None
+    parse_when(at)  # fail fast on a bad time; the office's local clock is applied later in recommend()
     return Query(" ".join(rest), use_case=use_case, diets=parse_diets(opts.get("diet")),
-                 party=int(opts.get("party", 0)), when=parse_when(opts["at"].replace("_", " ")) if "at" in opts else None,
+                 party=int(opts.get("party", 0)), at=at,
                  max_walk=float(opts["walk"]) if "walk" in opts else None, limit=min(int(opts.get("n", 5)), 10))
 
 

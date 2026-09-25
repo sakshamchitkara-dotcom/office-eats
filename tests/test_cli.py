@@ -5,15 +5,16 @@ import pytest
 
 from conftest import load
 from office_eats import cli
+from office_eats.tz import parse_when
 
 MON_NOON = datetime(2026, 9, 21, 12, 0)
 
 
 def test_parse_when():
-    assert cli.parse_when("fri 19:00", MON_NOON) == datetime(2026, 9, 25, 19, 0)
-    assert cli.parse_when("mon 11:00", MON_NOON) == datetime(2026, 9, 28, 11, 0)  # already passed today
-    assert cli.parse_when("2026-10-01 12:30") == datetime(2026, 10, 1, 12, 30)
-    assert cli.parse_when(None) is None
+    assert parse_when("fri 19:00", MON_NOON) == datetime(2026, 9, 25, 19, 0)
+    assert parse_when("mon 11:00", MON_NOON) == datetime(2026, 9, 28, 11, 0)  # already passed today
+    assert parse_when("2026-10-01 12:30") == datetime(2026, 10, 1, 12, 30)
+    assert parse_when(None) is None
 
 
 def test_parse_diets():

@@ -6,7 +6,6 @@ import csv
 import json
 import re
 import sys
-from datetime import datetime, timedelta
 from pathlib import Path
 
 from . import report
@@ -21,24 +20,6 @@ from .scoring import PROFILES
 from .slack import post_webhook, to_slack
 
 FORMATS = {**report.FORMATS, "slack": lambda r: json.dumps(to_slack(r), indent=2, ensure_ascii=False)}
-DAY_NAMES = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
-
-
-def parse_when(text: str | None, now: datetime | None = None) -> datetime | None:
-    """'now', ISO ('2026-09-22 12:30'), or '<day> HH:MM' (next occurrence, e.g. 'fri 19:00')."""
-    if not text:
-        return None
-    now = now or datetime.now()
-    t = text.strip().lower()
-    if t == "now":
-        return now.replace(second=0, microsecond=0)
-    parts = t.split()
-    if len(parts) == 2 and parts[0][:3] in DAY_NAMES:
-        hh, mm = map(int, parts[1].split(":"))
-        ahead = (DAY_NAMES.index(parts[0][:3]) - now.weekday()) % 7
-        when = (now + timedelta(days=ahead)).replace(hour=hh, minute=mm, second=0, microsecond=0)
-        return when if when >= now else when + timedelta(days=7)
-    return datetime.fromisoformat(text)
 
 
 def parse_diets(text: str | None) -> set[str]:
@@ -57,6 +38,7 @@ def add_query_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--diet", type=parse_diets, default=set(), help=f"comma list: {', '.join(DIETS)}")
     p.add_argument("--party", type=int, default=0, help="party size")
     p.add_argument("--at", dest="when", help="'now', ISO datetime, or e.g. 'fri 19:00' (local time at the office)")
+    p.add_argument("--tz", help="office time zone, e.g. Europe/London (default: looked up from the coordinates)")
     p.add_argument("--open-only", action="store_true", help="drop venues known to be closed at --at")
     p.add_argument("-n", "--limit", type=int, default=8)
     p.add_argument("--provider", choices=sorted(REGISTRY), default="osm")
@@ -70,7 +52,7 @@ def add_query_args(p: argparse.ArgumentParser) -> None:
 
 def make_query(a: argparse.Namespace, location: str, name: str | None = None) -> Query:
     return Query(location=location, name=name, use_case=a.use_case, radius_m=a.radius, max_walk=a.max_walk,
-                 diets=a.diet, party=a.party, when=parse_when(a.when), open_only=a.open_only, limit=a.limit,
+                 diets=a.diet, party=a.party, at=a.when, tz=a.tz, open_only=a.open_only, limit=a.limit,
                  provider=a.provider, menus=a.menus, llm=a.llm, routing=a.routing)
 
 

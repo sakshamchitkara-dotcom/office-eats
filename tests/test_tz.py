@@ -47,3 +47,26 @@ def test_to_office_time():
     utc_noon = datetime(2026, 9, 25, 19, 0, tzinfo=timezone.utc)
     assert tz.to_office_time(utc_noon, la) == datetime(2026, 9, 25, 12, 0)
     assert tz.to_office_time(datetime(2026, 9, 25, 12, 0), la) == datetime(2026, 9, 25, 12, 0)
+
+
+def test_at_is_resolved_against_the_office_clock(fake_http, monkeypatch):
+    from conftest import load
+    from office_eats.recommend import Query, recommend
+
+    http = fake_http({"overpass": load("overpass_adobe_800m.json")})
+    q = Query("37.3295,-121.8948", at="2026-09-25T19:00+00:00", tz="America/Los_Angeles", limit=1)
+    r = recommend(q, http)
+    assert r.query.when == datetime(2026, 9, 25, 12, 0) and r.timezone == "America/Los_Angeles"
+    assert r.to_dict()["timezone"] == "America/Los_Angeles"
+    now = recommend(Query("37.3295,-121.8948", at="now", tz="Asia/Tokyo", limit=1), http).query.when
+    tokyo_now = datetime.now(timezone.utc).astimezone(tz.office_tz(0, 0, override="Asia/Tokyo")).replace(tzinfo=None)
+    assert abs((tokyo_now - now).total_seconds()) < 120
+
+
+def test_no_time_means_no_zone_lookup(fake_http, no_finder):
+    from conftest import load
+    from office_eats.recommend import Query, recommend
+
+    http = fake_http({"overpass": load("overpass_adobe_800m.json")})
+    assert recommend(Query("37.3295,-121.8948", limit=1), http).timezone is None
+    assert len(http.calls) == 1  # venues only

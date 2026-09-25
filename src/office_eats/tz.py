@@ -7,11 +7,13 @@ If all of that fails we return None and times stay naive, which is the pre-0.2 b
 from __future__ import annotations
 
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from .http import Http, HttpError
 from .overpass import OVERPASS
+
+DAY_NAMES = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
 
 
 def _zone(name: str | None) -> ZoneInfo | None:
@@ -54,7 +56,24 @@ def office_tz(lat: float, lon: float, http: Http | None = None, override: str | 
 
 
 def to_office_time(when: datetime, zone: ZoneInfo | None) -> datetime:
-    """Aware datetimes (e.g. --at now) become naive office-local; naive ones already are office-local."""
+    """Aware datetimes (ISO with an offset) become naive office-local; naive ones already are office-local."""
     if when.tzinfo is None:
         return when
     return (when.astimezone(zone) if zone else when.astimezone()).replace(tzinfo=None)
+
+
+def parse_when(text: str | None, now: datetime | None = None) -> datetime | None:
+    """'now', ISO ('2026-09-22 12:30'), or '<day> HH:MM' (next occurrence, e.g. 'fri 19:00')."""
+    if not text:
+        return None
+    now = now or datetime.now()
+    t = text.strip().lower()
+    if t == "now":
+        return now.replace(second=0, microsecond=0)
+    parts = t.split()
+    if len(parts) == 2 and parts[0][:3] in DAY_NAMES:
+        hh, mm = map(int, parts[1].split(":"))
+        ahead = (DAY_NAMES.index(parts[0][:3]) - now.weekday()) % 7
+        when = (now + timedelta(days=ahead)).replace(hour=hh, minute=mm, second=0, microsecond=0)
+        return when if when >= now else when + timedelta(days=7)
+    return datetime.fromisoformat(text)
