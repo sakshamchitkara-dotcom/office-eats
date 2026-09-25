@@ -1,4 +1,4 @@
-"""Persistent team data in SQLite: lunch polls and votes, team profiles.
+"""Persistent team data in SQLite: lunch polls and votes, team profiles, weekly rotation picks.
 
 Kept apart from the API cache so `office-eats clear-cache` never wipes votes.
 """
@@ -22,6 +22,8 @@ CREATE TABLE IF NOT EXISTS votes (poll_id TEXT NOT NULL REFERENCES polls(id), vo
 CREATE TABLE IF NOT EXISTS teams (name TEXT PRIMARY KEY, location TEXT NOT NULL, office_name TEXT,
                                   diets TEXT NOT NULL DEFAULT '[]', party INTEGER NOT NULL DEFAULT 0, tz TEXT);
 """
+CREATE_PICKS = """CREATE TABLE IF NOT EXISTS picks (team TEXT NOT NULL, week TEXT NOT NULL, venue_id TEXT NOT NULL,
+                                              venue_name TEXT NOT NULL, at REAL NOT NULL, PRIMARY KEY (team, week))"""
 TEAM_FIELDS = ("location", "office_name", "diets", "party", "tz")
 
 
@@ -36,6 +38,7 @@ class Store:
         self.db = sqlite3.connect(str(path), check_same_thread=False)  # the Slack server votes from worker threads
         self.lock = threading.Lock()
         self.db.executescript(SCHEMA)
+        self.db.execute(CREATE_PICKS)
 
     # --- polls -------------------------------------------------------------------------------------------------
     def create_poll(self, title: str, options: list[dict]) -> str:
@@ -105,3 +108,13 @@ class Store:
 
     def teams(self) -> list[dict]:
         return [self.team(n) for (n,) in self.db.execute("SELECT name FROM teams ORDER BY name")]
+
+    # --- rotation ----------------------------------------------------------------------------------------------
+    def record_pick(self, team: str, week: str, venue_id: str, venue_name: str) -> None:
+        with self.lock, self.db:
+            self.db.execute("INSERT OR REPLACE INTO picks VALUES (?, ?, ?, ?, ?)", (team, week, venue_id, venue_name, time.time()))
+
+    def picks(self, team: str, limit: int = 52) -> list[dict]:
+        """Newest week first. Week keys are ISO weeks like 2026-W39, which sort correctly as text."""
+        rows = self.db.execute("SELECT week, venue_id, venue_name FROM picks WHERE team = ? ORDER BY week DESC LIMIT ?", (team, limit))
+        return [{"week": w, "venue_id": vid, "venue_name": name} for w, vid, name in rows]

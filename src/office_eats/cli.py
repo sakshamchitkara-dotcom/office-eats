@@ -160,6 +160,29 @@ def cmd_team(a: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_rotate(a: argparse.Namespace) -> int:
+    from .models import osm_link
+    from .rotate import rotate
+
+    store = make_store()
+    if a.history:
+        print("\n".join(f"{p['week']}  {p['venue_name']}" for p in store.picks(a.team)) or "(no picks yet)")
+        return 0
+    pick, _, chosen, new = rotate(store, a.team, make_http(a), at=a.when, avoid_weeks=a.avoid_weeks, reroll=a.reroll,
+                                  routing=a.routing)
+    lines = [f"{a.team} lunch for {pick['week']}: {pick['venue_name']}" + ("" if new else " (already picked this week; --reroll to change)")]
+    if chosen:
+        v = chosen.venue
+        lines += [f"  {v.walk_min:.0f} min walk · {', '.join(v.cuisine[:2]) or v.kind} · {chosen.blurb}", f"  {osm_link(v)}"]
+    text = "\n".join(lines)
+    if a.slack:
+        from .slack import esc
+        post_webhook({"text": text, "blocks": [{"type": "section", "text": {"type": "mrkdwn", "text": esc(text)[:3000]}}]})
+        print("posted to Slack", file=sys.stderr)
+    print(text)
+    return 0
+
+
 def cmd_serve(a: argparse.Namespace) -> int:
     from .server import serve  # imports cli helpers, so keep it lazy
 
@@ -216,6 +239,17 @@ def build_parser() -> argparse.ArgumentParser:
     tsub.add_parser("show", help="show one team").add_argument("team")
     tsub.add_parser("list", help="list teams")
     t.set_defaults(func=cmd_team)
+
+    ro = sub.add_parser("rotate", help="pick this week's team lunch, avoiding recent repeats")
+    ro.add_argument("team")
+    ro.add_argument("--avoid-weeks", type=int, default=4, help="skip places picked in this many previous weeks (default 4)")
+    ro.add_argument("--at", dest="when", help="lunch time to check opening hours against (default: now, office time)")
+    ro.add_argument("--reroll", action="store_true", help="replace this week's pick")
+    ro.add_argument("--history", action="store_true", help="list past picks and exit")
+    ro.add_argument("--routing", choices=ROUTING_ENGINES, default="none")
+    ro.add_argument("--slack", action="store_true", help="also post the pick to SLACK_WEBHOOK_URL")
+    ro.add_argument("--no-cache", action="store_true")
+    ro.set_defaults(func=cmd_rotate)
 
     s = sub.add_parser("serve", help="run the Slack slash-command endpoint")
     s.add_argument("--host", default="127.0.0.1")
