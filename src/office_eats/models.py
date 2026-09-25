@@ -39,6 +39,7 @@ class Venue:
     # filled in by enrichment
     distance_m: float = 0.0
     walk_min: float = 0.0
+    walk_routed: bool = False  # True when walk_min came from a routing engine
     open_now: bool | None = None
     group_size: int = 0
     menu_url: str | None = None
@@ -58,7 +59,7 @@ def haversine_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 
 
 def walk_minutes(distance_m: float) -> float:
-    # ponytail: straight-line * 1.3 detour factor; swap for a routing engine (OSRM) if accuracy matters
+    # Straight-line * 1.3 detour factor: the fallback when routing is off or fails (see routing.py).
     return distance_m * 1.3 / WALK_M_PER_MIN
 
 
