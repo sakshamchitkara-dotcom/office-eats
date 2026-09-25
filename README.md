@@ -1,6 +1,6 @@
 # office-eats
 
-Finds good places to eat near an office and ranks them for the job at hand: a **quick team lunch**, a **client dinner**, **office catering**, or a **coffee meeting**. Give it an address, a company name, `lat,lon`, or a CSV of offices. You get back a terminal table, Markdown, HTML, an interactive map, JSON, or a Slack message, and every venue links to OpenStreetMap. Teams can also vote on a shortlist and run a weekly lunch rotation.
+Finds good places to eat near an office and ranks them for the job at hand: a **quick team lunch**, a **client dinner**, **office catering**, or a **coffee meeting**. Give it an address, a company name, `lat,lon`, or a CSV of offices. You get back a terminal table, Markdown, HTML, an interactive map, JSON, or a Slack message, and every venue links to OpenStreetMap. Teams can also vote on a shortlist (in Slack or on a small web page), run a weekly lunch rotation that finds an option for every member's diet, and rate each pick so later picks improve.
 
 ```
 $ office-eats recommend "345 Park Ave, San Jose, CA 95110" --name "Adobe HQ" -u lunch --party 8 --at "2026-09-29 12:15"
@@ -78,6 +78,15 @@ office-eats poll create "..." --slack                               # post it to
 
 Polls and votes are stored in SQLite at `~/.local/share/office-eats/data.sqlite3` (override with `OFFICE_EATS_DB`). This file is separate from the API cache, so `clear-cache` never deletes votes. To count Slack button clicks, set the Slack app's **Interactivity Request URL** to `https://<your-host>/slack/interact` on the `serve` endpoint. Each click is signature-checked, recorded against the Slack user, and the poll message is redrawn in place. Real output: [`examples/live/v0.2/canary-wharf-poll.txt`](examples/live/v0.2/canary-wharf-poll.txt).
 
+#### Voting on the web (no Slack needed)
+
+```bash
+office-eats serve --web-only --host 0.0.0.0 --port 8080   # no SLACK_SIGNING_SECRET needed in this mode
+# share http://<your-host>:8080/poll/7b3921c8
+```
+
+`/poll/<id>` is a plain HTML page with no JavaScript. It lists the options with their current votes and voters, and has a name field and a Vote button. Votes go into the same database as CLI and Slack votes, and voting again changes yours. The page escapes every venue name, sends a strict Content-Security-Policy, and refuses form posts whose `Origin` is another site. There are **no accounts**: anyone who has the link can vote under any name. That suits a team channel, not a public poll. A full `serve` (with a signing secret) serves the page as well. Real run, including a vote from Chromium: [`examples/live/v0.3/canary-wharf-web-poll.txt`](examples/live/v0.3/canary-wharf-web-poll.txt) and the resulting [page](examples/live/v0.3/canary-wharf-web-poll.html).
+
 ### Weekly lunch rotation
 
 ```bash
@@ -88,6 +97,37 @@ office-eats rotate Platform --history
 ```
 
 `rotate` ranks lunch spots for the team's saved office, applying the team's diets as a hard filter and its party size. It then picks the best place that was not picked in the last `--avoid-weeks` weeks (default 4). If every candidate is that recent, it picks the one used longest ago. You get one pick per ISO week of office-local time. Add `--slack` to post the pick.
+
+**Per-person diets.** A team-wide `--diet` means every pick must meet every listed diet. For a mixed team, record each person instead:
+
+```bash
+office-eats team member Platform ana --diet vegan
+office-eats team member Platform bo --diet halal
+office-eats team member Platform cy --diet kosher
+office-eats team member Platform dee            # no restrictions
+office-eats team member Platform dee --remove
+```
+
+With members on file, `rotate` looks at every candidate and puts first the places that cover everyone (a person is covered when the venue's OSM tags offer every diet they listed). Next come the places that cover the most people, in ranker order. The pick says who is left out:
+
+```
+$ office-eats rotate Platform --at '2026-09-29 12:30'
+Platform lunch for 2026-W40: Korean BBQ House
+  10 min walk · korean, barbecue · Probably mid-priced korean restaurant, 10 min on foot; open when you need it; halal/vegan/vegetarian options; can likely seat ~12.
+  https://www.openstreetmap.org/way/267333163
+  Diet coverage: 2/3 members with dietary needs; no tagged option for cy
+```
+
+The same team with `--diet vegan,halal,kosher` gets `no places match` at that office. Coverage relies on `diet:*` tags, so "no tagged option" can also mean the venue has one and nobody mapped it.
+
+**Feedback.** After lunch, anyone can rate the pick:
+
+```bash
+office-eats feedback Platform ana up
+office-eats feedback Platform cy down --week 2026-W40   # default: the latest pick
+```
+
+One rating per person per week, and rating again changes it. In later rotations each net thumbs-up adds 5 points to that place's score and each net thumbs-down takes 5 away, capped at ±20. Diet coverage still ranks first, so feedback reorders places that cover the same number of people. Real run: [`examples/live/v0.3/canary-wharf-members-feedback.txt`](examples/live/v0.3/canary-wharf-members-feedback.txt).
 
 ### Use cases and scoring
 
@@ -131,7 +171,8 @@ The server:
 
 - verifies Slack's `v0` HMAC signature and rejects timestamps more than 5 minutes old;
 - acknowledges within Slack's 3-second limit, then posts the result to `response_url`;
-- refuses to start without a signing secret unless you pass `--insecure`, which is for local testing only.
+- rejects out-of-range options with a message naming them (`party` 0-200, `n` 1-10, `walk` 1-60 minutes, and `at` must look like `fri_19:00` or an ISO time);
+- refuses to start without a signing secret unless you pass `--web-only` (voting pages only, with the Slack endpoints switched off) or `--insecure` (local testing only).
 
 ### Caching
 
@@ -152,8 +193,9 @@ The Nominatim and Overpass fixtures in `tests/fixtures/` were recorded from real
 - OSM has almost no price data. Outside the chain and keyword tables, prices are guesses from cuisine and venue kind, and reports mark them with `~`. Provider prices, when available, always override them.
 - Walking time is straight-line distance × 1.3 at 80 m/min unless you pass `--routing`. The public OSRM server has no SLA, so any routing failure falls back to that estimate with a warning.
 - `opening_hours` support covers weekday rules, overnight spans, `off` and `24/7`. Public-holiday, date, month and sunrise rules are skipped (so `Mo-Su 11:00-22:00; Dec 25 off` reads as open every day, including 25 December), and a venue with unparseable hours is treated as unknown rather than guessed.
-- Rotation diets are a team-wide hard filter. A team that combines several strict diets (for example vegan, kosher and halal) may get no matches.
-- Web voting outside Slack is CLI-only (`poll vote`). There is no standalone voting page.
+- Diet matching trusts OSM `diet:*` tags and a few cuisines that imply a diet. It cannot tell whether one dish meets two needs at once (vegan *and* gluten-free), only that the venue offers each.
+- Feedback is a flat adjustment with no decay. A thumbs-down from two years ago counts as much as one from last week.
+- The web voting page has no login. Anyone with the link can vote under any name, so share it only inside the team.
 
 ## License
 
