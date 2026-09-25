@@ -11,6 +11,7 @@ import urllib.request
 from . import __version__
 from .cache import Cache
 
+RETRY_STATUS = {429, 502, 503, 504}
 AUTH_HEADERS = {"authorization", "x-goog-api-key"}
 DEFAULT_UA = f"office-eats/{__version__} (+https://github.com/sakshamchitkara-dotcom/office-eats)"
 
@@ -29,12 +30,13 @@ class Http:
     """GET/POST JSON with caching and a minimum interval between calls to the same host."""
 
     def __init__(self, cache: Cache | None = None, min_interval: dict[str, float] | None = None,
-                 timeout: float = 60, default_interval: float = 0.5):
+                 timeout: float = 60, default_interval: float = 0.5, retries: int = 2, backoff: float = 5.0):
         self.cache = cache
         # Nominatim policy: max 1 req/s. Overpass: be gentle too.
         self.min_interval = {"nominatim.openstreetmap.org": 1.1, "overpass-api.de": 2.0, **(min_interval or {})}
         self.timeout = timeout
         self.default_interval = default_interval
+        self.retries, self.backoff = retries, backoff
         self._last: dict[str, float] = {}
         self._lock = threading.Lock()
 
@@ -54,7 +56,6 @@ class Http:
         if self.cache and ttl > 0 and (hit := self.cache.get(key)) is not None:
             return hit
         host = urllib.parse.urlsplit(url).hostname or ""
-        self._wait(host)
         headers = {"User-Agent": user_agent(), **(headers or {})}
         body = None
         if json_body is not None:
@@ -63,11 +64,20 @@ class Http:
         elif data is not None:
             body = urllib.parse.urlencode(data).encode()
         req = urllib.request.Request(url, data=body, headers=headers)
-        try:
-            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
-                raw = resp.read().decode("utf-8", "replace")
-        except OSError as e:  # URLError/HTTPError/timeouts are all OSError subclasses
-            raise HttpError(f"{host}: {e}", getattr(e, "code", None)) from e
+        for attempt in range(self.retries + 1):
+            self._wait(host)
+            try:
+                with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+                    raw = resp.read().decode("utf-8", "replace")
+                break
+            except OSError as e:  # URLError/HTTPError/timeouts are all OSError subclasses
+                status = getattr(e, "code", None)
+                # Overpass answers 429/504 when busy: back off (honouring Retry-After) instead of hammering it.
+                if status in RETRY_STATUS and attempt < self.retries:
+                    retry_after = (getattr(e, "headers", None) or {}).get("Retry-After", "")
+                    time.sleep(min(float(retry_after), 60) if retry_after.isdigit() else self.backoff * 2 ** attempt)
+                    continue
+                raise HttpError(f"{host}: {e}", status) from e
         value = json.loads(raw) if parse_json else raw
         if self.cache and ttl > 0:
             self.cache.set(key, value, ttl)

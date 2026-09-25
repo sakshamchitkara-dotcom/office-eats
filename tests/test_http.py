@@ -48,3 +48,42 @@ def test_json_body_and_auth_not_in_cache_key(monkeypatch):
     http.fetch("https://api.test/x", json_body={"a": 1}, headers={"Authorization": "Bearer one"})
     http.fetch("https://api.test/x", json_body={"a": 1}, headers={"Authorization": "Bearer two"})
     assert seen == [(b'{"a": 1}', "application/json")]
+
+
+def test_retries_busy_server_then_succeeds(monkeypatch):
+    import urllib.error
+    http = Http(backoff=0.01, default_interval=0)
+    attempts = []
+
+    class Resp:
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+        def read(self): return b'{"ok": true}'
+
+    def flaky(req, timeout):
+        attempts.append(1)
+        if len(attempts) < 3:
+            raise urllib.error.HTTPError(req.full_url, 429, "Too Many Requests", {"Retry-After": "0"}, None)
+        return Resp()
+
+    monkeypatch.setattr("urllib.request.urlopen", flaky)
+    assert http.fetch("https://overpass.test/x") == {"ok": True} and len(attempts) == 3
+
+
+def test_does_not_retry_client_errors(monkeypatch):
+    import urllib.error
+
+    import pytest
+
+    from office_eats.http import HttpError
+    http = Http(backoff=0.01, default_interval=0)
+    attempts = []
+
+    def bad(req, timeout):
+        attempts.append(1)
+        raise urllib.error.HTTPError(req.full_url, 400, "Bad Request", {}, None)
+
+    monkeypatch.setattr("urllib.request.urlopen", bad)
+    with pytest.raises(HttpError) as e:
+        http.fetch("https://overpass.test/x")
+    assert e.value.status == 400 and len(attempts) == 1
