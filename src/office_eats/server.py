@@ -101,7 +101,9 @@ def make_handler(secret: str | None, http: Http, worker=threading.Thread, store:
             self.send_response(code)
             for k, v in {"Content-Type": "text/html; charset=utf-8", "Content-Length": str(len(body)),
                          "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'",
-                         "X-Frame-Options": "DENY", "Referrer-Policy": "no-referrer", **(headers or {})}.items():
+                         "X-Frame-Options": "DENY",
+                         # same-origin, not no-referrer: with no-referrer browsers send "Origin: null" on the vote form.
+                         "Referrer-Policy": "same-origin", **(headers or {})}.items():
                 self.send_header(k, v)
             self.end_headers()
             self.wfile.write(body)

@@ -161,6 +161,9 @@ def test_web_poll_page_votes_without_slack(running):
     assert status == 400 and "Vote not counted: choice must be 1-2" in page
     assert web(base, f"/poll/{pid}", {"voter": " ", "choice": "0"})[0] == 400
     assert web(base, f"/poll/{pid}", {"voter": "eve", "choice": "0"}, {"Origin": "https://evil.example"})[0] == 403
+    assert web(base, f"/poll/{pid}", {"voter": "eve", "choice": "0"}, {"Origin": "null"})[0] == 403
+    assert web(base, f"/poll/{pid}", {"voter": "fay", "choice": "0"}, {"Origin": base})[0] == 303  # what a browser sends
+    assert headers["Referrer-Policy"] == "same-origin"
     store.close_poll(pid)
     status, _, page = web(base, f"/poll/{pid}")
     assert "Poll closed." in page and 'type="radio"' not in page
