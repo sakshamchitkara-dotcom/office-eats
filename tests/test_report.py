@@ -42,3 +42,10 @@ def test_html_escapes_untrusted_names():
 def test_empty_table():
     r = Result(Query("0,0"), Place("HQ", 0, 0), [], 0)
     assert "no matches" in report.table(r)
+
+
+def test_non_http_links_dropped():
+    v = Venue("node/1", "x", 0, 0, website="javascript:alert(1)", menu_url="https://ok.test/menu")
+    r = Result(Query("0,0"), Place("HQ", 0, 0), [Scored(v, 50, [])], 1)
+    for out in (report.to_html(r), report.markdown(r)):
+        assert "javascript:" not in out and "https://ok.test/menu" in out
