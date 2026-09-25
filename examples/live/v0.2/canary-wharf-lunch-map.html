@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quick team lunch near One Canada Square</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<style>
+html,body{height:100%;margin:0;font:14px/1.4 system-ui,sans-serif}#map{height:calc(100% - 3rem)}
+header{height:3rem;display:flex;align-items:center;padding:0 1rem;gap:.75rem;background:#fff;color:#1d1d1f;border-bottom:1px solid #ddd}
+header h1{font-size:1rem;margin:0}.pin{background:#0b57d0;color:#fff;border-radius:50%;text-align:center;font-weight:600;line-height:24px}
+.pin.office{background:#c5221f}
+@media (prefers-color-scheme:dark){header{background:#161617;color:#eee;border-color:#333}}
+</style></head><body>
+<header><h1>Quick team lunch near One Canada Square</h1><small>8 picks · walking: osrm walking routes</small></header>
+<div id="map"></div>
+<script>
+const data = {"office": {"name": "One Canada Square", "lat": 51.5049486, "lon": -0.01951}, "venues": [{"n": 1, "name": "Greggs", "lat": 51.5049468, "lon": -0.0200103, "score": 94, "walk": 0, "price": "$", "why": "Budget-friendly sandwich counter-service spot, 0 min on foot; open when you need it; can likely seat ~6.", "osm": "https://www.openstreetmap.org/node/3835356850", "site": "https://www.greggs.co.uk/shop-finder?shop-code=5712"}, {"n": 2, "name": "Pret A Manger", "lat": 51.5051235, "lon": -0.0201357, "score": 93, "walk": 1, "price": "$", "why": "Budget-friendly sandwich counter-service spot, 1 min on foot; open when you need it; can likely seat ~6.", "osm": "https://www.openstreetmap.org/node/2768944961", "site": "https://www.pret.co.uk/en-GB/shop-finder/l/london/unit-320-(rt1)-cabot-place-canary-wharf/39"}, {"n": 3, "name": "Tortilla", "lat": 51.5051576, "lon": -0.020754, "score": 87, "walk": 2, "price": "~$", "why": "Probably budget-friendly tex-mex counter-service spot, 2 min on foot; open when you need it; can likely seat ~6.", "osm": "https://www.openstreetmap.org/node/6553275300", "site": "https://www.tortilla.co.uk/restaurants/canary-wharf"}, {"n": 4, "name": "Pret A Manger", "lat": 51.504954, "lon": -0.0189925, "score": 87, "walk": 0, "price": "$", "why": "Budget-friendly sandwich counter-service spot, 0 min on foot; vegan/vegetarian options; can likely seat ~6.", "osm": "https://www.openstreetmap.org/node/3835357158", "site": "https://www.pret.co.uk/en-GB/shop-finder/l/london/canada-place/10742"}, {"n": 5, "name": "Caravan", "lat": 51.5042172, "lon": -0.0194705, "score": 87, "walk": 1, "price": "~$", "why": "Probably budget-friendly coffee shop restaurant, 1 min on foot; can likely seat ~10.", "osm": "https://www.openstreetmap.org/node/9592077269", "site": "https://www.caravanrestaurants.co.uk/canary-wharf.php"}, {"n": 6, "name": "Obica", "lat": 51.502652, "lon": -0.0202573, "score": 86, "walk": 4, "price": "~$", "why": "Probably budget-friendly italian restaurant, 4 min on foot; open when you need it; can likely seat ~8.", "osm": "https://www.openstreetmap.org/node/2024044311", "site": "https://obica.com/"}, {"n": 7, "name": "Yolk", "lat": 51.5052519, "lon": -0.0213574, "score": 86, "walk": 3, "price": "~$", "why": "Probably budget-friendly coffee shop counter-service spot, 3 min on foot; open when you need it; can likely seat ~6.", "osm": "https://www.openstreetmap.org/node/14159942728", "site": "https://www.yolklondon.com/"}, {"n": 8, "name": "Hagen", "lat": 51.5040701, "lon": -0.0203127, "score": 86, "walk": 2, "price": "~$", "why": "Probably budget-friendly coffee shop café, 2 min on foot; open when you need it; can likely seat ~6.", "osm": "https://www.openstreetmap.org/node/14159942729", "site": "https://www.thehagenproject.com/"}]};
+const map = L.map("map");
+L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom: 19,
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
+const icon = (text, cls) => L.divIcon({className: "pin " + cls, html: text, iconSize: [24, 24]});
+function popup(v) {
+  const div = document.createElement("div");
+  const add = (tag, text) => { const el = document.createElement(tag); el.textContent = text; div.appendChild(el); return el; };
+  add("strong", v.n ? v.n + ". " + v.name : v.name);
+  if (v.n) {
+    add("div", v.score + "/100 · " + v.walk + " min walk · " + v.price);
+    add("div", v.why);
+    const links = add("div", "");
+    for (const [label, url] of [["OpenStreetMap", v.osm], ["website", v.site]]) {
+      if (!url) continue;
+      const a = document.createElement("a"); a.href = url; a.textContent = label; a.rel = "nofollow noopener"; a.target = "_blank";
+      links.append(links.childNodes.length ? " · " : "", a);
+    }
+  }
+  return div;
+}
+const points = [[data.office.lat, data.office.lon]];
+L.marker(points[0], {icon: icon("★", "office"), title: data.office.name}).bindPopup(popup(data.office)).addTo(map);
+for (const v of data.venues) {
+  L.marker([v.lat, v.lon], {icon: icon(String(v.n), ""), title: v.name}).bindPopup(popup(v)).addTo(map);
+  points.push([v.lat, v.lon]);
+}
+map.fitBounds(points, {padding: [30, 30], maxZoom: 17});
+</script>
+</body></html>
+

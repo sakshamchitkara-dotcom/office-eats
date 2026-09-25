@@ -1,0 +1,13 @@
+Quick team lunch near One Canada Square
+One Canada Square, 1, Canada Square, Canary Wharf, London Borough of Tower Hamlets, Greater London, England, E14 5AH, United Kingdom  (233 candidates, walk: osrm walking routes)
+
+#  Score  Name           Kind        Cuisine                     Walk  $   Diet              Open
+-  -----  -------------  ----------  --------------------------  ----  --  ----------------  ----
+1  94     Greggs         fast_food   sandwich, bakery            0m    $   -                 yes
+2  93     Pret A Manger  fast_food   sandwich                    1m    $   -                 yes
+3  87     Tortilla       fast_food   tex-mex                     2m    ~$  -                 yes
+4  87     Pret A Manger  fast_food   sandwich                    0m    $   vegan/vegetarian  ?
+5  87     Caravan        restaurant  coffee_shop, international  1m    ~$  -                 ?
+6  86     Obica          restaurant  italian, pizza              4m    ~$  -                 yes
+7  86     Yolk           fast_food   coffee_shop, sandwich       3m    ~$  -                 yes
+8  86     Hagen          cafe        coffee_shop                 2m    ~$  -                 yes
