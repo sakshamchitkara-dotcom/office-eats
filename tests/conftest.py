@@ -17,8 +17,8 @@ class FakeHttp:
         self.routes = routes
         self.calls = []
 
-    def fetch(self, url, *, data=None, headers=None, ttl=0, parse_json=True):
-        self.calls.append((url, data))
+    def fetch(self, url, *, data=None, json_body=None, headers=None, ttl=0, parse_json=True):
+        self.calls.append((url, data if json_body is None else json_body))
         for needle, payload in self.routes.items():
             if needle in url:
                 return payload(url, data) if callable(payload) else payload

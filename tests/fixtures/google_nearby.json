@@ -1,0 +1,10 @@
+{"places": [
+  {"id": "ChIJexample1", "displayName": {"text": "Example Trattoria", "languageCode": "en"},
+   "location": {"latitude": 37.3301, "longitude": -121.8931},
+   "types": ["italian_restaurant", "restaurant", "food", "point_of_interest"], "primaryType": "italian_restaurant",
+   "priceLevel": "PRICE_LEVEL_EXPENSIVE", "rating": 4.6, "websiteUri": "https://trattoria.example",
+   "formattedAddress": "1 Example St, San Jose, CA", "servesVegetarianFood": true, "reservable": true, "takeout": true},
+  {"id": "ChIJexample2", "displayName": {"text": "Example Beans"},
+   "location": {"latitude": 37.3290, "longitude": -121.8950},
+   "types": ["coffee_shop", "cafe", "food"], "primaryType": "coffee_shop", "priceLevel": "PRICE_LEVEL_INEXPENSIVE"}
+]}
