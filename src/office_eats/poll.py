@@ -1,6 +1,8 @@
 """Team lunch polls: shortlist -> poll options, and the poll as text or a Slack Block Kit message with vote buttons."""
 from __future__ import annotations
 
+import html
+
 from .models import osm_link
 from .recommend import Result
 from .slack import esc
@@ -55,3 +57,35 @@ def parse_vote_value(value: str) -> tuple[str, int]:
     if not poll_id or not choice.isdigit():
         raise ValueError(f"bad vote value {value!r}")
     return poll_id, int(choice)
+
+
+def to_html(store: Store, poll_id: str, message: str = "") -> str:
+    """A plain voting page for teams without Slack: one form, no JavaScript, works on a phone."""
+    e = html.escape
+    poll, rows = store.tally(poll_id)
+    items = []
+    for i, o, voters in _ordered(poll, rows):
+        radio = "" if poll["closed"] else f'<input type="radio" name="choice" value="{i}" id="o{i}" required> '
+        who = f'<br><small>{e(", ".join(voters))}</small>' if voters else ""
+        items.append(f'<li><label for="o{i}">{radio}<strong>{e(o["name"])}</strong> · {o["walk_min"]:.0f} min walk · '
+                     f'{len(voters)} vote{"s" * (len(voters) != 1)}</label> <a href="{e(o["url"])}">map</a>'
+                     f'<br><small>{e(o["blurb"])}</small>{who}</li>')
+    form = ("<p><strong>Poll closed.</strong></p>" if poll["closed"] else
+            '<p><label for="voter">Your name</label><br><input id="voter" name="voter" maxlength="80" required autocomplete="name"></p>'
+            "<p><button>Vote</button> <small>One vote each; voting again changes yours.</small></p>")
+    note = f'<p role="status"><strong>{e(message)}</strong></p>' if message else ""
+    return f"""<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{e(poll["title"])}</title>
+<style>
+:root{{color-scheme:light dark}}body{{font:16px/1.5 system-ui,sans-serif;max-width:40rem;margin:2rem auto;padding:0 1rem}}
+ol{{padding-left:1.2rem}}li{{margin:.8rem 0}}small{{opacity:.75}}input[name=voter]{{font:inherit;padding:.4rem;width:100%;max-width:20rem}}
+button{{font:inherit;padding:.4rem 1.2rem}}
+</style></head><body>
+<h1>{e(poll["title"])}</h1>{note}
+<form method="post" action="/poll/{e(poll_id)}"><ol>
+{chr(10).join(items)}
+</ol>{form}</form>
+<p><small>Data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>, ODbL 1.0.</small></p>
+</body></html>
+"""
