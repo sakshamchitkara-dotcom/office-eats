@@ -1,0 +1,1961 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-09-25T08:16:34Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 679000900,
+  "lat": 37.3322880,
+  "lon": -121.8888440,
+  "tags": {
+    "amenity": "restaurant",
+    "check_date": "2026-05-13",
+    "cuisine": "steak",
+    "level": "0",
+    "name": "Morton’s The Steakhouse",
+    "outdoor_seating": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1768788322,
+  "lat": 37.3311862,
+  "lon": -121.8872259,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "301",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "South 1st Street",
+    "amenity": "restaurant",
+    "check_date": "2026-05-13",
+    "cuisine": "italian",
+    "name": "Original Joe’s",
+    "opening_hours": "Mo-Th,Su 16:00-22:00; Fr-Sa 16:00-23:00",
+    "phone": "+1 408 292 7030",
+    "website": "https://originaljoes.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 2655212506,
+  "lat": 37.3365104,
+  "lon": -121.8942082,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "87",
+    "addr:postcode": "95110",
+    "addr:street": "North San Pedro Street",
+    "amenity": "restaurant",
+    "cuisine": "vietnamese;spring_roll",
+    "name": "On a Roll",
+    "website": "https://sanpedrosquaremarket.com/San-Pedro-Square-Market-Tenants/on-a-roll"
+  }
+},
+{
+  "type": "node",
+  "id": 2882792357,
+  "lat": 37.3353959,
+  "lon": -121.8902100,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "37",
+    "addr:postcode": "95113",
+    "addr:street": "South 1st Street",
+    "amenity": "restaurant",
+    "check_date": "2024-08-30",
+    "diet:vegan": "only",
+    "internet_access": "wlan",
+    "name": "Good Karma Vegan Cafe"
+  }
+},
+{
+  "type": "node",
+  "id": 3208512952,
+  "lat": 37.3325757,
+  "lon": -121.8891238,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "172",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "South Market Street",
+    "amenity": "restaurant",
+    "check_date": "2026-05-13",
+    "level": "0",
+    "name": "The Grill On The Alley",
+    "phone": "+1 408 294 2244",
+    "website": "https://www.thegrill.com/locations/the-grill-san-jose-california"
+  }
+},
+{
+  "type": "node",
+  "id": 3215367502,
+  "lat": 37.3345446,
+  "lon": -121.8891450,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "96",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "South 1st Street",
+    "amenity": "restaurant",
+    "check_date": "2025-04-09",
+    "cuisine": "french;vietnamese",
+    "email": "info@elyserestaurant.com",
+    "level": "0",
+    "name": "Élyse Restaurant",
+    "name:fr": "Élyse",
+    "opening_hours": "Tu-Sa 17:00-21:00",
+    "phone": "+1 408-899-2762",
+    "website": "https://www.elyserestaurant.com/",
+    "website:menu": "https://www.elyserestaurant.com/menus"
+  }
+},
+{
+  "type": "node",
+  "id": 3215367503,
+  "lat": 37.3343779,
+  "lon": -121.8894756,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "99",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "South 1st Street",
+    "amenity": "restaurant",
+    "check_date": "2025-04-09",
+    "cuisine": "american",
+    "disused:website": "http://www.billyberks.com",
+    "level": "0",
+    "name": "Rookies Sports Lounge",
+    "old_name": "Billy Berk’s",
+    "phone": "+1-408-292-4300",
+    "website": "https://rookieslodge.com/downtown-san-jose/"
+  }
+},
+{
+  "type": "node",
+  "id": 3458835606,
+  "lat": 37.3351569,
+  "lon": -121.8932068,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "151",
+    "addr:postcode": "95113",
+    "addr:street": "West Santa Clara Street",
+    "amenity": "restaurant",
+    "check_date": "2026-07-04",
+    "name": "The Farmers Union",
+    "website": "https://www.thefarmersunion.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 3458835615,
+  "lat": 37.3365041,
+  "lon": -121.8945554,
+  "tags": {
+    "amenity": "fast_food",
+    "cuisine": "pizza",
+    "name": "Pizza Bocca Lupo",
+    "name:it": "Pizza Bocca Lupo",
+    "website": "https://pizzaboccalupo.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 3458835620,
+  "lat": 37.3322523,
+  "lon": -121.9012584,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "Bloom Energy Power Club",
+    "old_name": "The Grill at SAP Center"
+  }
+},
+{
+  "type": "node",
+  "id": 3478559764,
+  "lat": 37.3353984,
+  "lon": -121.8926961,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "131",
+    "addr:postcode": "95113",
+    "addr:street": "West Santa Clara Street",
+    "amenity": "restaurant",
+    "check_date": "2026-07-04",
+    "cuisine": "mexican",
+    "name": "Taqueria La Victoria"
+  }
+},
+{
+  "type": "node",
+  "id": 3537287696,
+  "lat": 37.3353261,
+  "lon": -121.8927468,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "143",
+    "addr:postcode": "95113",
+    "addr:street": "West Santa Clara Street",
+    "amenity": "fast_food",
+    "check_date": "2026-07-04",
+    "cuisine": "greek",
+    "name": "Nick the Greek",
+    "website": "http://nickthegreeksj.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 3537287697,
+  "lat": 37.3352893,
+  "lon": -121.8928303,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "145",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "West Santa Clara Street",
+    "amenity": "cafe",
+    "brand:wikidata": "Q138843364",
+    "cuisine": "breakfast;coffee_shop;smoothie;juice",
+    "name": "Toastique",
+    "website": "https://toastique.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 3555373040,
+  "lat": 37.3349135,
+  "lon": -121.8936782,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "173",
+    "addr:postcode": "95113",
+    "addr:street": "West Santa Clara Street",
+    "alt_name": "The Brit",
+    "amenity": "pub",
+    "brand": "Britannia Arms",
+    "check_date": "2026-07-10",
+    "level": "0",
+    "name": "Britannia Arms Downtown San Jose",
+    "operator": "Britannia Arms",
+    "payment:cash": "yes",
+    "payment:credit_cards": "yes",
+    "payment:debit_cards": "yes",
+    "theme": "english",
+    "website": "https://www.britanniaarmsdowntown.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 3555373048,
+  "lat": 37.3356689,
+  "lon": -121.8911368,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "52",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "West Santa Clara Street",
+    "air_conditioning": "yes",
+    "amenity": "cafe",
+    "bar": "no",
+    "check_date": "2026-07-04",
+    "cuisine": "sandwich;donut;bubble_tea;coffee_shop",
+    "drive_through": "no",
+    "indoor_seating": "yes",
+    "internet_access": "no",
+    "level": "0",
+    "name": "City Bagels",
+    "name:en": "City Bagels",
+    "opening_hours": "Mo-Fr 06:00-14:00; Sa-Su 06:00-13:30",
+    "outdoor_seating": "no",
+    "payment:american_express": "yes",
+    "payment:apple_pay": "yes",
+    "payment:cash": "yes",
+    "payment:contactless": "yes",
+    "payment:credit_cards": "yes",
+    "payment:discover_card": "yes",
+    "payment:google_pay": "yes",
+    "payment:mastercard": "yes",
+    "payment:visa": "yes",
+    "payment:visa_contactless": "yes",
+    "phone": "+1 408-275-0151",
+    "reservation": "no",
+    "smoking": "no",
+    "takeaway": "yes",
+    "toilets": "no",
+    "website": "http://citybagels.biz/",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 3573968505,
+  "lat": 37.3348517,
+  "lon": -121.8938120,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "189",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "West Santa Clara Street",
+    "amenity": "restaurant",
+    "check_date": "2026-07-10",
+    "disused:cuisine": "seafood",
+    "level": "0",
+    "name": "The Pressroom",
+    "old_name": "Balconades;Pacific Fish Company;SVG Innovation Center",
+    "payment:cash": "yes",
+    "payment:credit_cards": "yes",
+    "payment:debit_cards": "yes",
+    "website": "https://pressroomsj.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 3595854578,
+  "lat": 37.3356400,
+  "lon": -121.8912052,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "56",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "West Santa Clara Street",
+    "amenity": "restaurant",
+    "cuisine": "sushi",
+    "level": "0",
+    "name": "Fuji Sushi"
+  }
+},
+{
+  "type": "node",
+  "id": 3605247287,
+  "lat": 37.3332129,
+  "lon": -121.8921058,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "165",
+    "addr:postcode": "95113",
+    "addr:street": "West San Fernando Street",
+    "amenity": "fast_food",
+    "brand": "Subway",
+    "brand:wikidata": "Q244457",
+    "cuisine": "sandwich",
+    "drive_through": "no",
+    "fixme:atp": "no ATP match, check if still exists",
+    "name": "Subway",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 3606791587,
+  "lat": 37.3342803,
+  "lon": -121.8897430,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "25",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "West San Fernando Street",
+    "amenity": "restaurant",
+    "check_date": "2025-04-09",
+    "cuisine": "mexican",
+    "name": "Mezcal",
+    "official_name": "Mezcal Restaurant LLC",
+    "website": "https://mezcalrestaurantsj.com//"
+  }
+},
+{
+  "type": "node",
+  "id": 3608158853,
+  "lat": 37.3333490,
+  "lon": -121.8918284,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "155",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "West San Fernando Street",
+    "amenity": "restaurant",
+    "cuisine": "mexican",
+    "disused:amenity": "fast_food",
+    "disused:cuisine": "pizza",
+    "disused:phone": "+1-408-313-4089",
+    "disused:website": "https://www.tonydimaggiospizzarestaurant.com/",
+    "name": "El Cabrón",
+    "name:en": "El Cabrón",
+    "name:es": "El Cabrón",
+    "official_name": "El Cabrón Kitchen & Cantina",
+    "old_name": "Pizza Chicago;Tony Di Maggio’s Pizza",
+    "strapline": "Kitchen & Cantina"
+  }
+},
+{
+  "type": "node",
+  "id": 3608593572,
+  "lat": 37.3338469,
+  "lon": -121.8911510,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "95",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "South Market Street",
+    "addr:unit": "170",
+    "amenity": "restaurant",
+    "cuisine": "mexican",
+    "disused:amenity": "restaurant",
+    "disused:cuisine": "vietnamese;mexican;peruvian",
+    "level": "0",
+    "name": "La Hacienda Lounge",
+    "name:en": "La Hacienda Lounge",
+    "name:es": "La Hacienda",
+    "official_name": "La Hacienda Bar Restaurant",
+    "old_name": "Jade Leaf;PAC Lounge;El Taurino VIP;Inca Azteca",
+    "old_name:es": "El Taurino VIP;Inca Azteca"
+  }
+},
+{
+  "type": "node",
+  "id": 3624046601,
+  "lat": 37.3348002,
+  "lon": -121.8893271,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "78",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "South 1st Street",
+    "amenity": "restaurant",
+    "check_date": "2025-10-31",
+    "check_date:opening_hours": "2025-10-31",
+    "cuisine": "mexican",
+    "level": "0",
+    "name": "Angelou’s Mexican Grill",
+    "opening_hours": "Mo-Th 10:30-21:30; Fr,Sa 10:30-23:30; Su off",
+    "website": "https://angelousmexicangrill.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 3630269590,
+  "lat": 37.3244889,
+  "lon": -121.9000120,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "350",
+    "addr:postcode": "95126",
+    "addr:state": "CA",
+    "addr:street": "Barack Obama Boulevard",
+    "addr:unit": "50",
+    "amenity": "fast_food",
+    "brand": "Subway",
+    "brand:wikidata": "Q244457",
+    "cuisine": "sandwich",
+    "level": "0",
+    "name": "Subway",
+    "official_name": "Subway #35194",
+    "opening_hours": "Mo-Fr 07:00-21:00; Sa 08:00-21:00; Su 09:00-20:00",
+    "operator": "Inika Subway LLC",
+    "phone": "+1 408-320-1820",
+    "ref": "35194",
+    "takeaway": "yes",
+    "website": "https://restaurants.subway.com/united-states/ca/san-jose/350-bird-ave"
+  }
+},
+{
+  "type": "node",
+  "id": 3630269835,
+  "lat": 37.3309815,
+  "lon": -121.8877456,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "302",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "South Market Street",
+    "amenity": "restaurant",
+    "brand": "Il Fornaio",
+    "brand:wikidata": "Q5996553",
+    "check_date": "2026-05-13",
+    "cuisine": "italian",
+    "name": "Il Fornaio San Jose",
+    "website": "https://www.ilfornaio.com/?restaurant_id=3156"
+  }
+},
+{
+  "type": "node",
+  "id": 3632382346,
+  "lat": 37.3320912,
+  "lon": -121.8877980,
+  "tags": {
+    "amenity": "restaurant",
+    "check_date": "2026-05-13",
+    "cuisine": "asian",
+    "name": "Mosaic",
+    "opening_hours": "Mo 07:00-09:30, Su-Th 16:00-23:30, Fr,Sa 16:00-01:30, Su-Th 16:00-20:30, Fr,Sa 16:00-21:00, Sa,Su 00:00-16:00",
+    "website": "http://www.mosaicdowntown.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 3634565755,
+  "lat": 37.3328881,
+  "lon": -121.8879430,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "200",
+    "addr:postcode": "95113",
+    "addr:street": "South 1st Street",
+    "addr:unit": "10",
+    "amenity": "restaurant",
+    "check_date": "2026-05-13",
+    "cuisine": "seafood",
+    "level": "0",
+    "name": "Scott’s Seafood",
+    "website": "https://www.scottsseafoodsj.com/",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 3634565759,
+  "lat": 37.3346283,
+  "lon": -121.8892029,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "86",
+    "addr:postcode": "95113-2406",
+    "addr:state": "CA",
+    "addr:street": "South 1st Street",
+    "amenity": "restaurant",
+    "check_date": "2025-04-09",
+    "check_date:currency:XBT": "2026-06-04",
+    "contact:email": "angkorchef@angkorfood.com",
+    "contact:facebook": "https://www.facebook.com/AngkorChefSJ",
+    "contact:instagram": "https://www.instagram.com/angkorchef",
+    "cuisine": "cambodian",
+    "currency:XBT": "yes",
+    "diet:chicken": "yes",
+    "diet:fish": "yes",
+    "diet:meat": "yes",
+    "diet:non-vegetarian": "yes",
+    "diet:vegan": "yes",
+    "diet:vegetarian": "yes",
+    "level": "0",
+    "name": "Angkor Chef",
+    "opening_hours": "Mo,Su off; Tu-Th 11:30-21:00; Fr 11:30-22:00; Sa 12:00-22:00",
+    "payment:lightning": "yes",
+    "payment:lightning:operator": "square",
+    "payment:lightning_contactless": "no",
+    "payment:onchain": "no",
+    "phone": "+1 408-809-1639",
+    "website": "https://angkorchef.square.site/",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 3634565760,
+  "lat": 37.3347232,
+  "lon": -121.8892630,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "80",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "South 1st Street",
+    "amenity": "cafe",
+    "check_date": "2025-04-09",
+    "name": "EggHead Sando Café"
+  }
+},
+{
+  "type": "node",
+  "id": 3678180869,
+  "lat": 37.3346776,
+  "lon": -121.8889020,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "1",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "East San Fernando Street",
+    "amenity": "pub",
+    "disused:amenity": "restaurant",
+    "disused:cuisine": "thai",
+    "disused:website": "http://hanumanthai.net/",
+    "level": "0",
+    "name": "Rec Room",
+    "old_name": "Hanuman",
+    "website": "https://www.recroomsj.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 4093398680,
+  "lat": 37.3301249,
+  "lon": -121.8872254,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:floor": "1",
+    "addr:housenumber": "350",
+    "addr:postcode": "95113",
+    "addr:street": "South Market Street",
+    "amenity": "fast_food",
+    "check_date": "2026-08-18",
+    "cuisine": "mexican;coffee_shop;empanada",
+    "level": "0",
+    "name": "Guzmania",
+    "opening_hours": "Mo,Su off; Tu-Th 09:00-18:00; Fr 09:00-19:00; Sa 10:00-19:00",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4093398681,
+  "lat": 37.3299248,
+  "lon": -121.8868698,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:floor": "1",
+    "addr:housenumber": "360",
+    "addr:postcode": "95113",
+    "addr:street": "South Market Street",
+    "addr:unit": "80",
+    "amenity": "cafe",
+    "check_date": "2026-08-18",
+    "level": "0",
+    "name": "Voltaire Coffee House",
+    "opening_hours": "Mo-Fr 06:00-18:00; Sa-Su 08:00-18:00",
+    "payment:cash": "yes",
+    "payment:credit_cards": "yes",
+    "payment:debit_cards": "yes",
+    "website": "http://www.voltairecoffeehouse.com"
+  }
+},
+{
+  "type": "node",
+  "id": 4093398682,
+  "lat": 37.3294528,
+  "lon": -121.8863965,
+  "tags": {
+    "amenity": "pub",
+    "name": "Back Bar"
+  }
+},
+{
+  "type": "node",
+  "id": 4348719693,
+  "lat": 37.3364490,
+  "lon": -121.8945163,
+  "tags": {
+    "amenity": "restaurant",
+    "cuisine": "italian",
+    "name": "Pasta Fresca"
+  }
+},
+{
+  "type": "node",
+  "id": 4392901231,
+  "lat": 37.3311477,
+  "lon": -121.8870580,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "315",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "South 1st Street",
+    "amenity": "cafe",
+    "check_date": "2026-05-13",
+    "disused:website": "http://www.caffefrascati.com/",
+    "internet_access": "wlan",
+    "internet_access:fee": "no",
+    "name": "Nirvana Soul",
+    "old_name": "Caffe Frascati",
+    "opening_hours": "Mo-Sa 07:00-16:00, Su 07:00-12:00",
+    "outdoor_seating": "yes",
+    "smoking": "no",
+    "website": "https://www.nirvanasoulcoffee.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 4485153091,
+  "lat": 37.3359658,
+  "lon": -121.8946392,
+  "tags": {
+    "amenity": "restaurant",
+    "cuisine": "american",
+    "name": "SP2",
+    "website": "https://sp2sanjose.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 4765780787,
+  "lat": 37.3353595,
+  "lon": -121.8901820,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "43",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "South First Street",
+    "amenity": "fast_food",
+    "brand": "Subway",
+    "brand:wikidata": "Q244457",
+    "check_date": "2026-07-04",
+    "cuisine": "sandwich",
+    "level": "0",
+    "name": "Subway",
+    "opening_hours": "Mo-Fr 08:30-19:00; Sa-Su 10:00-17:00",
+    "phone": "+1 408-971-7827",
+    "takeaway": "yes",
+    "website": "https://restaurants.subway.com/united-states/ca/san-jose/43-s-first-street"
+  }
+},
+{
+  "type": "node",
+  "id": 4765780806,
+  "lat": 37.3339539,
+  "lon": -121.8877278,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:floor": "1",
+    "addr:housenumber": "150",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "South 1st Street",
+    "addr:unit": "181",
+    "amenity": "fast_food",
+    "brand": "Subway",
+    "brand:wikidata": "Q244457",
+    "check_date": "2025-11-19",
+    "cuisine": "sandwich",
+    "internet_access": "no",
+    "level": "0",
+    "name": "Subway",
+    "opening_hours": "Mo-Fr 08:00-23:00; Sa-Su 10:00-23:00",
+    "payment:cash": "yes",
+    "payment:credit_cards": "yes",
+    "payment:debit_cards": "yes",
+    "phone": "+1 408-320-1192",
+    "takeaway": "yes",
+    "website": "https://restaurants.subway.com/united-states/ca/san-jose/150-s-first-street",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4785297003,
+  "lat": 37.3365696,
+  "lon": -121.8944079,
+  "tags": {
+    "amenity": "fast_food",
+    "name": "GameDay",
+    "old_name": "Coast Poke Counter"
+  }
+},
+{
+  "type": "node",
+  "id": 4785297221,
+  "lat": 37.3365494,
+  "lon": -121.8941260,
+  "tags": {
+    "amenity": "fast_food",
+    "cuisine": "ice_cream",
+    "name": "The Gelato Shop"
+  }
+},
+{
+  "type": "node",
+  "id": 4785297230,
+  "lat": 37.3364677,
+  "lon": -121.8943375,
+  "tags": {
+    "amenity": "restaurant",
+    "cuisine": "mexican",
+    "name": "Loteria Taco Bar"
+  }
+},
+{
+  "type": "node",
+  "id": 4785297240,
+  "lat": 37.3365298,
+  "lon": -121.8943810,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "87",
+    "addr:postcode": "95110",
+    "addr:state": "CA",
+    "addr:street": "North San Pedro Street",
+    "amenity": "fast_food",
+    "disused:amenity": "restaurant",
+    "disused:cuisine": "mediterranean",
+    "disused:outdoor_seating": "yes",
+    "disused:phone": "+1-408-955-5077",
+    "level": "0",
+    "name": "Hella Good Burger",
+    "old_name": "Robee’s Falafel"
+  }
+},
+{
+  "type": "node",
+  "id": 4785300413,
+  "lat": 37.3362858,
+  "lon": -121.8939659,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "69",
+    "addr:postcode": "95110",
+    "addr:street": "North San Pedro Street",
+    "alt_name": "Firehouse Number 1",
+    "amenity": "restaurant",
+    "check_date": "2026-07-04",
+    "cuisine": "gastropub;burger",
+    "level": "0",
+    "name": "Firehouse No. 1",
+    "website": "http://firehouse1.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 4785300415,
+  "lat": 37.3355202,
+  "lon": -121.8934043,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "25",
+    "addr:postcode": "95113",
+    "addr:street": "North San Pedro Street",
+    "amenity": "pub",
+    "level": "0",
+    "name": "O’Flaherty’s",
+    "theme": "irish",
+    "website": "https://www.oflahertyspub.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 4789168521,
+  "lat": 37.3337122,
+  "lon": -121.8893539,
+  "tags": {
+    "amenity": "cafe",
+    "name": "Poppy and Claro"
+  }
+},
+{
+  "type": "node",
+  "id": 4797406237,
+  "lat": 37.3300715,
+  "lon": -121.8862223,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:floor": "1",
+    "addr:housenumber": "399",
+    "addr:postcode": "95113",
+    "addr:street": "South 1st Street",
+    "amenity": "restaurant",
+    "check_date": "2026-08-18",
+    "level": "0",
+    "name": "Petiscos Adega",
+    "name:en": "Petiscos Adega",
+    "opening_hours": "Mo-Fr 17:00-21:00; Sa-Su 11:30-21:00",
+    "website": "https://petiscosadega.com"
+  }
+},
+{
+  "type": "node",
+  "id": 4797429122,
+  "lat": 37.3334308,
+  "lon": -121.8873601,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:floor": "1",
+    "addr:housenumber": "150",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "South 1st Street",
+    "addr:unit": "135A",
+    "amenity": "cafe",
+    "branch": "Pavilion Downtown",
+    "brand": "Starbucks",
+    "brand:wikidata": "Q37158",
+    "check_date": "2025-11-19",
+    "cuisine": "coffee_shop",
+    "dog": "no",
+    "indoor_seating": "yes",
+    "internet_access": "wlan",
+    "level": "0",
+    "name": "Starbucks",
+    "name:en": "Starbucks Coffee",
+    "official_name": "Starbucks Coffee",
+    "opening_hours": "Mo-Fr 04:30-19:00; Sa-Su 05:30-19:00",
+    "phone": "+1 408-293-9945",
+    "ref": "5297",
+    "service:electricity": "no",
+    "takeaway": "yes",
+    "website": "https://www.starbucks.com/store-locator/store/11579/pavilion-downtown-150-s-first-street-suite-135-san-jose-ca-951132605",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4882119479,
+  "lat": 37.3354792,
+  "lon": -121.8898576,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "40",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "South 1st Street",
+    "amenity": "cafe",
+    "check_date": "2026-07-04",
+    "cuisine": "bubble_tea",
+    "disused:shop": "jewelry",
+    "level": "0",
+    "name": "Tea Alley",
+    "official_name": "Tea Alley Incorporated",
+    "old_name": "Star Jewelers"
+  }
+},
+{
+  "type": "node",
+  "id": 5079935754,
+  "lat": 37.3351335,
+  "lon": -121.8923720,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "1",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "South Market Street",
+    "addr:unit": "20",
+    "amenity": "fast_food",
+    "branch": "San Jose – Downtown",
+    "brand": "Erik's DeliCafé",
+    "brand:wikidata": "Q116922917",
+    "capacity": "48",
+    "check_date": "2026-07-04",
+    "cuisine": "sandwich",
+    "disused:brand:wikidata": "Q5326366",
+    "disused:internet_access": "wlan",
+    "disused:outdoor_seating": "no",
+    "disused:phone": "+1-408-931-6550",
+    "disused:website": "https://locations.earlofsandwichusa.com/us/ca/san-jose/1-south-market-street",
+    "drive_through": "no",
+    "level": "0",
+    "name": "Erik's DeliCafé",
+    "official_name": "Erik’s DeliCafe of San Jose – Downtown",
+    "old_name": "Earl of Sandwich",
+    "phone": "+1-408-998-2323",
+    "smoking": "no",
+    "takeaway": "yes",
+    "website": "https://eriksdelicafe.com/location/san-jose-downtown-california-deli-cafe/"
+  }
+},
+{
+  "type": "node",
+  "id": 5125137291,
+  "lat": 37.3328440,
+  "lon": -121.8894460,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "170",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "South Market Street",
+    "amenity": "restaurant",
+    "brand": "Signia by Hilton",
+    "cuisine": "american",
+    "diet:healthy": "yes",
+    "name": "Fountain Restaurant",
+    "opening_hours": "Mo-Su 06:30-10:30",
+    "phone": "+1 408 998 1900",
+    "website": "https://www.hilton.com/en/hotels/sjcsmhh-signia-san-jose/dining/fountain-restaurant/"
+  }
+},
+{
+  "type": "node",
+  "id": 5137104044,
+  "lat": 37.3350366,
+  "lon": -121.8925746,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "1",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "South Market Street",
+    "addr:unit": "40",
+    "amenity": "fast_food",
+    "brand": "Chipotle",
+    "brand:wikidata": "Q465751",
+    "check_date": "2026-07-04",
+    "cuisine": "mexican",
+    "drive_through": "no",
+    "level": "0",
+    "name": "Chipotle",
+    "official_name": "Chipotle Mexican Grill",
+    "outdoor_seating": "no",
+    "phone": "+1 408-938-0919",
+    "smoking": "no",
+    "takeaway": "yes",
+    "website": "https://locations.chipotle.com/ca/san-jose/1-s-market-st"
+  }
+},
+{
+  "type": "node",
+  "id": 5661042441,
+  "lat": 37.3350037,
+  "lon": -121.8899480,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "65",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "South 1st Street",
+    "amenity": "pub",
+    "cuisine": "gastropub",
+    "level": "0",
+    "microbrewery": "yes",
+    "name": "Skewers & Brew",
+    "website": "https://skewersandbrew.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 5664533685,
+  "lat": 37.3365093,
+  "lon": -121.8950580,
+  "tags": {
+    "amenity": "fast_food",
+    "name": "Southern Comfort Kitchen"
+  }
+},
+{
+  "type": "node",
+  "id": 5664533686,
+  "lat": 37.3365061,
+  "lon": -121.8949709,
+  "tags": {
+    "addr:housenumber": "100",
+    "addr:postcode": "95110",
+    "addr:street": "North Almaden Avenue",
+    "amenity": "fast_food",
+    "cuisine": "indian",
+    "name": "Urban Momo",
+    "opening_hours": "Su-Th 11:00-21:00; Fr-Sa 11:00-22:30",
+    "phone": "+1-408-971-1848",
+    "website": "https://www.urbanmomos.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 5664533687,
+  "lat": 37.3364687,
+  "lon": -121.8949490,
+  "tags": {
+    "amenity": "fast_food",
+    "cuisine": "vietnamese;noodle",
+    "name": "Phonomenal",
+    "website": "https://sanpedrosquaremarket.com/phonomenal"
+  }
+},
+{
+  "type": "node",
+  "id": 5664533688,
+  "lat": 37.3364357,
+  "lon": -121.8949240,
+  "tags": {
+    "amenity": "fast_food",
+    "brand": "Mochinut",
+    "brand:wikidata": "Q112757409",
+    "cuisine": "donut;bubble_tea",
+    "disused:amenity": "fast_food",
+    "disused:cuisine": "sushi",
+    "disused:website": "https://hylandsushi.com/",
+    "name": "Mochinut",
+    "old_name": "Hyland House of Sushi",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5664533689,
+  "lat": 37.3364005,
+  "lon": -121.8949020,
+  "tags": {
+    "amenity": "fast_food",
+    "cuisine": "korean",
+    "disused:alt_name": "Bray Butcher Block & Bistro",
+    "disused:cuisine": "barbecue",
+    "disused:website": "https://theshopbychefbaca.square.site/",
+    "name": "Master Shin's",
+    "old_name": "The Shop by Chef Baca",
+    "website": "https://hylandsushi.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 5664533692,
+  "lat": 37.3364933,
+  "lon": -121.8942709,
+  "tags": {
+    "alt_name": "Anchors Seafood Grill",
+    "amenity": "fast_food",
+    "cuisine": "seafood",
+    "name": "Anchors",
+    "website": "https://sanpedrosquaremarket.com/anchors-seafood-gril"
+  }
+},
+{
+  "type": "node",
+  "id": 5681157283,
+  "lat": 37.3334429,
+  "lon": -121.8901673,
+  "tags": {
+    "amenity": "cafe",
+    "cuisine": "sandwich",
+    "level": "0",
+    "name": "Café Too",
+    "outdoor_seating": "yes",
+    "website": "https://sjmusart.org/cafe"
+  }
+},
+{
+  "type": "node",
+  "id": 5681157285,
+  "lat": 37.3301046,
+  "lon": -121.8882019,
+  "tags": {
+    "amenity": "cafe",
+    "cuisine": "coffee_shop",
+    "level": "0",
+    "name": "Corner Market Kitchen",
+    "shop": "gift"
+  }
+},
+{
+  "type": "node",
+  "id": 5681157295,
+  "lat": 37.3314189,
+  "lon": -121.8899086,
+  "tags": {
+    "amenity": "cafe",
+    "cuisine": "coffee_shop",
+    "level": "0",
+    "name": "The Tech Cafe"
+  }
+},
+{
+  "type": "node",
+  "id": 6518560970,
+  "lat": 37.3364357,
+  "lon": -121.8951070,
+  "tags": {
+    "amenity": "cafe",
+    "cuisine": "bubble_tea",
+    "disused:amenity": "fast_food",
+    "disused:cuisine": "organic;salad",
+    "name": "Kokoro Tea & Craft Coffee",
+    "old_name": "2W Salad Healthy Food",
+    "website": "https://sanpedrosquaremarket.com/urban-ritual"
+  }
+},
+{
+  "type": "node",
+  "id": 6536481686,
+  "lat": 37.3286436,
+  "lon": -121.8914545,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "303",
+    "addr:postcode": "95110",
+    "addr:street": "Almaden Boulevard",
+    "addr:unit": "160",
+    "amenity": "fast_food",
+    "cuisine": "sandwich",
+    "level": "0",
+    "name": "Grace Deli & Cafe",
+    "outdoor_seating": "yes",
+    "website": "https://grace303.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 7120584720,
+  "lat": 37.3260423,
+  "lon": -121.8947390,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "387",
+    "addr:postcode": "95126",
+    "addr:state": "CA",
+    "addr:street": "Delmas Avenue",
+    "amenity": "cafe",
+    "bar": "no",
+    "check_date": "2024-01-22",
+    "contact:facebook": "https://facebook.com/ijavacafe1",
+    "cuisine": "coffee_shop;breakfast",
+    "delivery": "no",
+    "diet:halal": "yes",
+    "diet:pescetarian": "yes",
+    "diet:vegan": "yes",
+    "diet:vegetarian": "yes",
+    "drive_through": "no",
+    "email": "info@ijavacafe.com",
+    "indoor_seating": "yes",
+    "internet_access": "wlan",
+    "internet_access:fee": "customers",
+    "mapillary": "1078225683315447",
+    "name": "iJAVA Cafe",
+    "opening_hours": "08:00-14:00",
+    "outdoor_seating": "sidewalk",
+    "payment:credit_cards": "yes",
+    "payment:discover_card": "yes",
+    "payment:mastercard": "yes",
+    "payment:visa": "yes",
+    "phone": "+1 408-753-9732",
+    "reservation": "no",
+    "takeaway": "yes",
+    "toilets": "yes",
+    "website": "https://ijavacafe.com/delmas",
+    "website:menu": "https://ijavacafe.com/delmas"
+  }
+},
+{
+  "type": "node",
+  "id": 8730002084,
+  "lat": 37.3363128,
+  "lon": -121.8954270,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "77",
+    "addr:postcode": "95110",
+    "addr:state": "CA",
+    "addr:street": "North Almaden Avenue",
+    "addr:unit": "70",
+    "amenity": "cafe",
+    "contact:facebook": "https://www.facebook.com/drinkcoffeesj",
+    "contact:instagram": "https://www.instagram.com/dr.ink_sj",
+    "cuisine": "coffee_shop",
+    "indoor_seating": "yes",
+    "level": "0",
+    "name": "Dr.ink",
+    "opening_hours": "Mo-Fr 08:00-17:00; Sa,Su 08:00-18:00",
+    "outdoor_seating": "no",
+    "toilets": "yes",
+    "toilets:access": "customers",
+    "toilets:num_chambers": "1",
+    "toilets:unisex": "yes",
+    "website": "https://www.dr-ink.space"
+  }
+},
+{
+  "type": "node",
+  "id": 8878568274,
+  "lat": 37.3340084,
+  "lon": -121.8922759,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "152",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "Post Street",
+    "amenity": "restaurant",
+    "cuisine": "greek",
+    "name": "Myth Taverna",
+    "old_name": "Myth Taverna & Lounge",
+    "operator": "152 Post LLC",
+    "website": "https://mythloungesj.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 8878568275,
+  "lat": 37.3350599,
+  "lon": -121.8933477,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "163",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "West Santa Clara Street",
+    "amenity": "fast_food",
+    "cuisine": "pizza",
+    "name": "Slice of Homage",
+    "short_name": "SOH",
+    "website": "https://sohpizza.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 8878568277,
+  "lat": 37.3338762,
+  "lon": -121.8893007,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "50",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "West San Fernando Street",
+    "addr:unit": "1700",
+    "amenity": "restaurant",
+    "club": "business",
+    "fixme": "Somewhere on this floor",
+    "level": "16",
+    "name": "Silicon Valley Capital Club",
+    "website": "https://club.clubcorp.com/Clubs/Silicon-Valley-Capital-Club/"
+  }
+},
+{
+  "type": "node",
+  "id": 8915672472,
+  "lat": 37.3293137,
+  "lon": -121.8858164,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "439",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "South 1st Street",
+    "amenity": "pub",
+    "craft": "brewery",
+    "name": "Uproar Brewing Company",
+    "website": "https://www.uproarbrewing.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9634233103,
+  "lat": 37.3302325,
+  "lon": -121.8864802,
+  "tags": {
+    "amenity": "food_court",
+    "check_date": "2025-01-17",
+    "name": "SoFA Market"
+  }
+},
+{
+  "type": "node",
+  "id": 9878349956,
+  "lat": 37.3345031,
+  "lon": -121.8936402,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "198",
+    "addr:postcode": "95113",
+    "addr:street": "West Santa Clara Street",
+    "amenity": "restaurant",
+    "check_date": "2026-07-10",
+    "cuisine": "vietnamese",
+    "name": "Dac Phuc",
+    "name:en": "Dac Phuc",
+    "name:vi": "Đắc Phúc",
+    "opening_hours": "Mo-Su 10:00-15:00",
+    "payment:cash": "yes",
+    "payment:credit_cards": "yes",
+    "payment:debit_cards": "yes",
+    "phone": "+1 408-297-5517"
+  }
+},
+{
+  "type": "node",
+  "id": 9902986292,
+  "lat": 37.3357787,
+  "lon": -121.8936193,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "28",
+    "addr:state": "CA",
+    "addr:street": "North San Pedro Street",
+    "addr:unit": "60",
+    "amenity": "restaurant",
+    "check_date": "2026-07-04",
+    "cuisine": "dumpling",
+    "level": "0",
+    "name": "Serious Dumpling"
+  }
+},
+{
+  "type": "node",
+  "id": 9902986293,
+  "lat": 37.3358954,
+  "lon": -121.8937058,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "28",
+    "addr:state": "CA",
+    "addr:street": "North San Pedro Street",
+    "addr:unit": "70",
+    "amenity": "restaurant",
+    "brand": "Gyu-Kaku",
+    "brand:wikidata": "Q11349387",
+    "check_date": "2026-07-04",
+    "cuisine": "japanese;barbecue",
+    "name": "Gyu-Kaku",
+    "website": "https://www.gyu-kaku.com/sanjose/"
+  }
+},
+{
+  "type": "node",
+  "id": 9984274160,
+  "lat": 37.3347128,
+  "lon": -121.8889211,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "1",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "East San Fernando Street",
+    "amenity": "fast_food",
+    "contact:instagram": "https://www.instagram.com/hashndashsj/",
+    "cuisine": "sandwich",
+    "instagram": "https://www.instagram.com/hashndashsj/",
+    "level": "1",
+    "name": "Hash N Dash",
+    "old_name": "ABVE the Basics"
+  }
+},
+{
+  "type": "node",
+  "id": 11218411472,
+  "lat": 37.3331029,
+  "lon": -121.8887834,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "170",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "South Market Street",
+    "air_conditioning": "yes",
+    "amenity": "restaurant",
+    "bar": "yes",
+    "cuisine": "japanese",
+    "name": "AJI Bar & Robata",
+    "opening_hours": "Su-Th 16:00-23:00, Fr-Sa 16:00-00:00",
+    "payment:cash": "yes",
+    "payment:credit_cards": "yes",
+    "payment:debit_cards": "yes",
+    "payment:maestro": "yes",
+    "payment:mastercard": "yes",
+    "payment:visa": "yes",
+    "phone": "+1 408 998 1900",
+    "reservation": "yes",
+    "website": "https://www.hilton.com/en/hotels/sjcsmhh-signia-san-jose/dining/aji-bar-and-robata/",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 11511905227,
+  "lat": 37.3352152,
+  "lon": -121.8895999,
+  "tags": {
+    "amenity": "fast_food",
+    "check_date": "2024-01-12",
+    "cuisine": "chicken",
+    "name": "Nash+Tender"
+  }
+},
+{
+  "type": "node",
+  "id": 12307773201,
+  "lat": 37.3354722,
+  "lon": -121.8985138,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "317",
+    "addr:postcode": "95110",
+    "addr:state": "CA",
+    "addr:street": "West Saint John Street",
+    "amenity": "restaurant",
+    "cuisine": "italian",
+    "name": "Poor House Bistro",
+    "official_name": "Famiglia Meduri Poor House Bistro",
+    "official_name:etymology": "Jay Meduri",
+    "short_name": "PHB"
+  }
+},
+{
+  "type": "node",
+  "id": 12504189717,
+  "lat": 37.3313502,
+  "lon": -121.8936160,
+  "tags": {
+    "amenity": "fast_food",
+    "fast_food": "cafeteria",
+    "name": "Palettes"
+  }
+},
+{
+  "type": "node",
+  "id": 12504189719,
+  "lat": 37.3334127,
+  "lon": -121.8952077,
+  "tags": {
+    "amenity": "cafe",
+    "name": "The Almaden Cafe"
+  }
+},
+{
+  "type": "node",
+  "id": 12648692739,
+  "lat": 37.3366115,
+  "lon": -121.8941753,
+  "tags": {
+    "amenity": "fast_food",
+    "cuisine": "indian",
+    "name": "ID Cafe"
+  }
+},
+{
+  "type": "node",
+  "id": 12882515350,
+  "lat": 37.3351271,
+  "lon": -121.8979374,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "320",
+    "addr:postcode": "95110",
+    "addr:state": "CA",
+    "addr:street": "West Saint John Street",
+    "amenity": "restaurant",
+    "branch": "Little Italy",
+    "brand": "Bibo’s",
+    "cuisine": "pizza",
+    "name": "Bibo’s"
+  }
+},
+{
+  "type": "node",
+  "id": 12882515351,
+  "lat": 37.3350907,
+  "lon": -121.8980197,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "320",
+    "addr:postcode": "95110",
+    "addr:state": "CA",
+    "addr:street": "West Saint John Street",
+    "amenity": "restaurant",
+    "cuisine": "italian",
+    "name": "Ancora Vino",
+    "old_name": "Enoteca La Storia",
+    "old_name:it": "Enoteca La Storia",
+    "shop": "wine",
+    "website": "https://san-jose.enotecalastoria.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 12882827543,
+  "lat": 37.3354399,
+  "lon": -121.8981588,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "301",
+    "addr:postcode": "95110",
+    "addr:state": "CA",
+    "addr:street": "West Saint John Street",
+    "amenity": "restaurant",
+    "bar": "yes",
+    "cuisine": "barbecue",
+    "name": "Henry’s Hi-Life",
+    "website": "https://henryshilife.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 13318492349,
+  "lat": 37.3331894,
+  "lon": -121.8872208,
+  "tags": {
+    "addr:floor": "1",
+    "addr:housenumber": "201",
+    "addr:street": "South 2nd Street",
+    "amenity": "restaurant",
+    "check_date": "2025-11-19",
+    "cuisine": "mediterranean",
+    "internet_access": "wlan",
+    "internet_access:fee": "customers",
+    "internet_access:ssid": "Eos & Nyx - Guest",
+    "level": "0",
+    "name": "Eos & Nyx",
+    "opening_hours": "Tu-Fr 17:00-22:00; Sa-Su 10:00-13:00,17:00-22:00",
+    "payment:apple_pay": "yes",
+    "payment:cash": "yes",
+    "payment:credit_cards": "yes",
+    "payment:debit_cards": "yes",
+    "website": "https://www.opentable.com/r/eos-and-nyx-san-jose",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 13463313779,
+  "lat": 37.3258146,
+  "lon": -121.8987196,
+  "tags": {
+    "amenity": "restaurant",
+    "cuisine": "Ethiopian",
+    "name": "Mudai"
+  }
+},
+{
+  "type": "node",
+  "id": 13826493602,
+  "lat": 37.3310923,
+  "lon": -121.8870321,
+  "tags": {
+    "addr:housenumber": "321",
+    "addr:street": "South 1st Street",
+    "amenity": "restaurant",
+    "check_date": "2026-05-13",
+    "level": "0",
+    "name": "Jackie’s Place"
+  }
+},
+{
+  "type": "node",
+  "id": 13958459861,
+  "lat": 37.3363175,
+  "lon": -121.8948070,
+  "tags": {
+    "amenity": "cafe",
+    "name": "Maruwu Seicha"
+  }
+},
+{
+  "type": "node",
+  "id": 14069123989,
+  "lat": 37.3340377,
+  "lon": -121.8923380,
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "152",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "Post Street",
+    "amenity": "fast_food",
+    "check_date": "2026-08-02",
+    "cuisine": "mexican",
+    "name": "Chico de Mayo Street Tacos"
+  }
+},
+{
+  "type": "way",
+  "id": 39020002,
+  "center": {
+    "lat": 37.3264462,
+    "lon": -121.8881624
+  },
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "527",
+    "addr:postcode": "95110",
+    "addr:street": "Almaden Avenue",
+    "alt_name": "House of Pizza",
+    "amenity": "restaurant",
+    "building": "yes",
+    "cuisine": "pizza",
+    "ele": "34.72",
+    "height": "6.25",
+    "name": "Kukar’s House of Pizza",
+    "website": "https://kukarshouseofpizza.com/"
+  }
+},
+{
+  "type": "way",
+  "id": 45727960,
+  "center": {
+    "lat": 37.3359407,
+    "lon": -121.8927779
+  },
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "31",
+    "addr:postcode": "95113",
+    "addr:street": "North Market Street",
+    "amenity": "restaurant",
+    "building": "yes",
+    "cuisine": "sushi",
+    "ele": "32.02",
+    "height": "3.63",
+    "name": "Sushi [Confidential]",
+    "old_name": "Sonoma Chicken Coop",
+    "outdoor_seating": "yes",
+    "website": "http://sushiconfidential.com/contact-san-jose-location-sushi.html"
+  }
+},
+{
+  "type": "way",
+  "id": 45728000,
+  "center": {
+    "lat": 37.3356606,
+    "lon": -121.8925685
+  },
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "9",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "North Market Street",
+    "amenity": "restaurant",
+    "building": "yes",
+    "check_date": "2026-07-25",
+    "cuisine": "ramen",
+    "ele": "32.02",
+    "height": "3.63",
+    "name": "Hinodeya",
+    "opening_hours": "Su-Th 11:00-24:00; Fr-Sa 11:00-27:00"
+  }
+},
+{
+  "type": "way",
+  "id": 45728006,
+  "center": {
+    "lat": 37.3358282,
+    "lon": -121.8927628
+  },
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "23",
+    "addr:postcode": "95113",
+    "addr:street": "North Market Street",
+    "amenity": "restaurant",
+    "building": "yes",
+    "cuisine": "hawaiian",
+    "disused:cuisine": "thai",
+    "disused:phone": "+1-408-292-7515",
+    "disused:website": "http://dakineislandgrill.com/",
+    "ele": "32.02",
+    "height": "3.63",
+    "name": "Tiki Pete",
+    "old_name": "Thep Thai Thai Cuisine;Obama for America;Da Kine",
+    "outdoor_seating": "yes",
+    "website": "https://www.facebook.com/tikipete.US/"
+  }
+},
+{
+  "type": "way",
+  "id": 45728011,
+  "center": {
+    "lat": 37.3357563,
+    "lon": -121.8926962
+  },
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "19",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "North Market Street",
+    "amenity": "fast_food",
+    "brand": "Taco Bell",
+    "brand:wikidata": "Q111972226",
+    "building": "yes",
+    "cuisine": "tex-mex",
+    "drive_through": "no",
+    "ele": "32.02",
+    "height": "3.63",
+    "name": "Taco Bell Cantina",
+    "operator": "Kumar Management Corporation",
+    "phone": "+1 408-673-4305",
+    "takeaway": "yes",
+    "website": "https://locations.tacobell.com/ca/san-jose/19-market-st-.html"
+  }
+},
+{
+  "type": "way",
+  "id": 158248756,
+  "center": {
+    "lat": 37.3359302,
+    "lon": -121.8939722
+  },
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "51",
+    "addr:postcode": "95110",
+    "addr:street": "North San Pedro Street",
+    "amenity": "restaurant",
+    "brand": "The Old Spaghetti Factory",
+    "brand:wikidata": "Q7754912",
+    "building": "yes",
+    "check_date": "2026-07-04",
+    "cuisine": "italian",
+    "ele": "35.66",
+    "height": "4.12",
+    "name": "The Old Spaghetti Factory",
+    "website": "https://www.osf.com/"
+  }
+},
+{
+  "type": "way",
+  "id": 355203513,
+  "center": {
+    "lat": 37.3331522,
+    "lon": -121.8922068
+  },
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "167",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "West San Fernando Street",
+    "amenity": "restaurant",
+    "building": "yes",
+    "cuisine": "steak_house",
+    "ele": "34.70",
+    "height": "7.10",
+    "name": "Taurinus",
+    "official_name": "Taurinus Brazilian Steakhouse",
+    "website": "https://www.taurinussteakhouse.com/"
+  }
+},
+{
+  "type": "way",
+  "id": 357951070,
+  "center": {
+    "lat": 37.3272294,
+    "lon": -121.8956503
+  },
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "400",
+    "addr:postcode": "95126",
+    "addr:street": "West San Carlos Street",
+    "alt_name": "El Jalapeno Rojo",
+    "amenity": "restaurant",
+    "building": "retail",
+    "cuisine": "mexican",
+    "ele": "33.73",
+    "height": "5.67",
+    "name": "El Jalapeño Rojo",
+    "name:es": "El Jalapeño Rojo"
+  }
+},
+{
+  "type": "way",
+  "id": 513673517,
+  "center": {
+    "lat": 37.3358131,
+    "lon": -121.8985266
+  },
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "350",
+    "addr:postcode": "95110",
+    "addr:street": "West Julian Street",
+    "addr:unit": "4",
+    "amenity": "cafe",
+    "building": "yes",
+    "cuisine": "italian",
+    "ele": "29.38",
+    "height": "5.58",
+    "name": "Bel Bacio",
+    "phone": "+1 408 645 7776"
+  }
+},
+{
+  "type": "way",
+  "id": 1061223377,
+  "center": {
+    "lat": 37.3356043,
+    "lon": -121.8930239
+  },
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "18",
+    "addr:postcode": "95113",
+    "addr:street": "North San Pedro Street",
+    "amenity": "restaurant",
+    "building": "yes",
+    "building:levels": "2",
+    "ele": "35.81",
+    "height": "8.67",
+    "name": "Must be Thai"
+  }
+},
+{
+  "type": "way",
+  "id": 1065760256,
+  "center": {
+    "lat": 37.3350719,
+    "lon": -121.8907879
+  },
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "45",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "Post Street",
+    "alcohol": "yes",
+    "amenity": "restaurant",
+    "building": "yes",
+    "disused:cuisine": "chinese",
+    "ele": "34.56",
+    "fixme": "#surveyme",
+    "height": "7.86",
+    "level": "0",
+    "name": "Labyrinth Bar & Kitchen",
+    "old_name": "Peking House",
+    "operator": "Forty Five Post LLC",
+    "website": "http://labyrinthsj.com/"
+  }
+},
+{
+  "type": "way",
+  "id": 1065760264,
+  "center": {
+    "lat": 37.3351155,
+    "lon": -121.8906949
+  },
+  "tags": {
+    "addr:city": "San Jose",
+    "addr:housenumber": "43",
+    "addr:postcode": "95113",
+    "addr:state": "CA",
+    "addr:street": "Post Street",
+    "amenity": "restaurant",
+    "building": "yes",
+    "check_date": "2026-07-04",
+    "ele": "34.56",
+    "height": "7.86",
+    "level": "0",
+    "name": "The Club On Post",
+    "outdoor_seating": "yes",
+    "smoking": "no"
+  }
+},
+{
+  "type": "way",
+  "id": 1069833463,
+  "center": {
+    "lat": 37.3291971,
+    "lon": -121.8902865
+  },
+  "tags": {
+    "amenity": "restaurant",
+    "indoor": "area",
+    "level": "0",
+    "name": "Affinity",
+    "outdoor_seating": "yes"
+  }
+}
+
+  ]
+}
