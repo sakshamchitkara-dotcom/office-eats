@@ -135,7 +135,7 @@ office-eats feedback Platform ana up
 office-eats feedback Platform cy down --week 2026-W40   # default: the latest pick
 ```
 
-One rating per person per week, and rating again changes it. In later rotations each net thumbs-up adds 5 points to that place's score and each net thumbs-down takes 5 away, capped at ±20. Diet coverage still ranks first, so feedback reorders places that cover the same number of people. Real run: [`examples/live/v0.3/canary-wharf-members-feedback.txt`](examples/live/v0.3/canary-wharf-members-feedback.txt).
+One rating per person per week, and rating again changes it. In later rotations each thumbs-up adds 5 points to that place's score and each thumbs-down takes 5 away, capped at ±20. Votes fade with age: a vote's weight halves every 26 weeks after the week it rated (`rotate --feedback-half-life WEEKS`, `0` turns fading off), so a thumbs-down from two years ago counts about a sixteenth as much as one from last week. Diet coverage still ranks first, so feedback reorders places that cover the same number of people. Real run: [`examples/live/v0.3/canary-wharf-members-feedback.txt`](examples/live/v0.3/canary-wharf-members-feedback.txt).
 
 ### Use cases and scoring
 
@@ -203,7 +203,6 @@ The Nominatim and Overpass fixtures in `tests/fixtures/` were recorded from real
 - `opening_hours` support covers weekday rules, dates and date ranges (`Dec 25 off`, `Dec 24 10:00-16:00`, `Dec 24-Jan 02 off`), months, the nth weekday of a month (`Nov Th[4] off`), overnight spans, `off` and `24/7`. Public holidays (`PH`), school holidays, week numbers, years and sunrise rules are skipped: `PH off` never closes a venue, since the tool has no holiday calendar. A venue with unparseable hours is treated as unknown rather than guessed. Checked against every value in cached San Jose, San Francisco and London data: [`examples/live/v0.5/holiday-hours.txt`](examples/live/v0.5/holiday-hours.txt).
 - Diet matching trusts OSM `diet:*` tags and a few cuisines that imply a diet. It cannot tell whether one dish meets two needs at once (vegan *and* gluten-free), only that the venue offers each.
 - `--wheelchair` relies on the OSM `wheelchair` tag. Many accessible places are simply untagged, so the filter can hide good options.
-- Feedback is a flat adjustment with no decay. A thumbs-down from two years ago counts as much as one from last week.
 - The web voting page has no login. Without `poll invite`, anyone with the link can vote under any name, so share it only inside the team.
 
 ## License

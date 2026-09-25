@@ -196,7 +196,7 @@ def cmd_rotate(a: argparse.Namespace) -> int:
         print("\n".join(f"{p['week']}  {p['venue_name']}" for p in store.picks(a.team)) or "(no picks yet)")
         return 0
     pick, result, chosen, new = rotate(store, a.team, make_http(a), at=a.when, avoid_weeks=a.avoid_weeks, reroll=a.reroll,
-                                  routing=a.routing)
+                                  routing=a.routing, half_life=a.feedback_half_life)
     lines = [f"{a.team} lunch for {pick['week']}: {pick['venue_name']}" + ("" if new else " (already picked this week; --reroll to change)")]
     if chosen:
         v = chosen.venue
@@ -304,6 +304,8 @@ def build_parser() -> argparse.ArgumentParser:
     ro.add_argument("--routing", choices=ROUTING_ENGINES, default="none")
     ro.add_argument("--slack", action="store_true", help="also post the pick to SLACK_WEBHOOK_URL")
     ro.add_argument("--ics", metavar="FILE", help="also write a calendar invite (.ics) for the pick at the --at time")
+    ro.add_argument("--feedback-half-life", type=float, default=26, metavar="WEEKS",
+                    help="feedback counts half as much after this many weeks (default 26; 0 = never fades)")
     ro.add_argument("--no-cache", action="store_true")
     ro.set_defaults(func=cmd_rotate)
 
