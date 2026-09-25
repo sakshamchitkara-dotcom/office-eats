@@ -1,0 +1,9 @@
+{"businesses": [
+  {"id": "example-taqueria-san-jose", "name": "Example Taqueria", "price": "$", "rating": 4.5,
+   "coordinates": {"latitude": 37.3299, "longitude": -121.8940},
+   "categories": [{"alias": "mexican", "title": "Mexican"}, {"alias": "vegan", "title": "Vegan"}, {"alias": "catering", "title": "Caterers"}],
+   "transactions": ["delivery", "pickup"], "display_phone": "(408) 555-0100",
+   "location": {"display_address": ["2 Example Ave", "San Jose, CA 95110"]}},
+  {"id": "example-cafe", "name": "Example Cafe", "coordinates": {"latitude": 37.33, "longitude": -121.895},
+   "categories": [{"alias": "coffee", "title": "Coffee & Tea"}], "transactions": []}
+], "total": 2}

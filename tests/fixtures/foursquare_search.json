@@ -1,0 +1,7 @@
+{"results": [
+  {"fsq_place_id": "4b0example", "name": "Example Halal Grill", "latitude": 37.3297, "longitude": -121.8960,
+   "categories": [{"fsq_category_id": "x", "name": "Halal Restaurant"}, {"name": "Middle Eastern Restaurant"}],
+   "website": "https://grill.example", "tel": "(408) 555-0101", "location": {"formatted_address": "3 Example Blvd, San Jose, CA"}},
+  {"fsq_place_id": "4b1example", "name": "Example Coffee Bar", "latitude": 37.33, "longitude": -121.894,
+   "categories": [{"name": "Coffee Shop"}]}
+]}
