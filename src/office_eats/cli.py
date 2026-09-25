@@ -18,6 +18,7 @@ from .recommend import Query, recommend
 from .routing import ENGINES as ROUTING_ENGINES
 from .scoring import PROFILES
 from .slack import post_webhook, to_slack
+from .store import Store, StoreError
 
 FORMATS = {**report.FORMATS, "slack": lambda r: json.dumps(to_slack(r), indent=2, ensure_ascii=False)}
 
@@ -113,6 +114,34 @@ def cmd_batch(a: argparse.Namespace) -> int:
     return 1 if failures else 0
 
 
+def make_store() -> Store:
+    return Store()
+
+
+def cmd_poll(a: argparse.Namespace) -> int:
+    from . import poll  # poll imports recommend/slack; keep startup light for the other commands
+
+    store = make_store()
+    if a.poll_cmd == "create":
+        r = recommend(make_query(a, a.location, a.name), make_http(a))
+        if len(r.items) < 2:
+            raise ValueError("need at least 2 matching places for a poll; relax the filters")
+        poll_id = poll.create_from_result(store, r, a.title)
+        print(f"created poll {poll_id}", file=sys.stderr)
+    else:
+        poll_id = a.poll_id
+        if a.poll_cmd == "vote":
+            store.vote(poll_id, a.voter, a.choice - 1)
+        elif a.poll_cmd == "close":
+            store.close_poll(poll_id)
+    if getattr(a, "slack", False):
+        post_webhook(poll.to_slack(store, poll_id))
+        print("posted to Slack", file=sys.stderr)
+    print(json.dumps(poll.to_slack(store, poll_id), indent=2, ensure_ascii=False) if a.poll_format == "slack"
+          else poll.to_text(store, poll_id))
+    return 0
+
+
 def cmd_serve(a: argparse.Namespace) -> int:
     from .server import serve  # imports cli helpers, so keep it lazy
 
@@ -138,6 +167,25 @@ def build_parser() -> argparse.ArgumentParser:
     add_query_args(b)
     b.set_defaults(func=cmd_batch)
 
+    pl = sub.add_parser("poll", help="team lunch polls: create from a shortlist, vote, tally")
+    psub = pl.add_subparsers(dest="poll_cmd", required=True)
+    pc = psub.add_parser("create", help="shortlist places near an office and open a poll")
+    pc.add_argument("location", help="address, company name, or 'lat,lon'")
+    pc.add_argument("--name", help="display name for the office")
+    pc.add_argument("--title", help="poll question")
+    pc.add_argument("--slack", action="store_true", help="post the poll (with vote buttons) to SLACK_WEBHOOK_URL")
+    add_query_args(pc)
+    pc.set_defaults(limit=4)
+    pv = psub.add_parser("vote", help="record a vote (voting again changes it)")
+    pv.add_argument("poll_id")
+    pv.add_argument("voter")
+    pv.add_argument("choice", type=int, help="option number, starting at 1")
+    for name, help_ in (("tally", "show the current tally"), ("close", "close the poll and show the result")):
+        psub.add_parser(name, help=help_).add_argument("poll_id")
+    for p_ in psub.choices.values():
+        p_.add_argument("--poll-format", choices=["text", "slack"], default="text", help="print the poll as text or Slack JSON")
+    pl.set_defaults(func=cmd_poll)
+
     s = sub.add_parser("serve", help="run the Slack slash-command endpoint")
     s.add_argument("--host", default="127.0.0.1")
     s.add_argument("--port", type=int, default=8080)
@@ -153,7 +201,7 @@ def main(argv: list[str] | None = None) -> int:
     a = build_parser().parse_args(argv)
     try:
         return a.func(a)
-    except (GeocodeError, ProviderError, HttpError, ValueError) as e:
+    except (GeocodeError, ProviderError, HttpError, StoreError, ValueError) as e:
         print(f"office-eats: error: {e}", file=sys.stderr)
         return 2
 

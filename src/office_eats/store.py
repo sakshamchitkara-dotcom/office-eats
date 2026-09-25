@@ -38,7 +38,7 @@ class Store:
     def create_poll(self, title: str, options: list[dict]) -> str:
         if not 2 <= len(options) <= 10:
             raise StoreError("a poll needs 2-10 options")
-        poll_id = secrets.token_urlsafe(6)
+        poll_id = secrets.token_hex(4)  # hex: never starts with "-", which argparse would read as a flag
         with self.lock, self.db:
             self.db.execute("INSERT INTO polls (id, title, options, created) VALUES (?, ?, ?, ?)",
                             (poll_id, title, json.dumps(options), time.time()))
