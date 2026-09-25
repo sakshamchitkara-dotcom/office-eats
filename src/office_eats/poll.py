@@ -59,19 +59,29 @@ def parse_vote_value(value: str) -> tuple[str, int]:
     return poll_id, int(choice)
 
 
-def to_html(store: Store, poll_id: str, message: str = "") -> str:
-    """A plain voting page for teams without Slack: one form, no JavaScript, works on a phone."""
+def to_html(store: Store, poll_id: str, message: str = "", voter: str = "", token: str = "") -> str:
+    """A plain voting page for teams without Slack: one form, no JavaScript, works on a phone.
+    An invite-only poll shows the form only on a personal link (valid voter + token), with the name fixed."""
     e = html.escape
     poll, rows = store.tally(poll_id)
+    invited = store.check_token(poll_id, voter, token)
+    can_vote = not poll["closed"] and (invited or not store.invite_only(poll_id))
     items = []
     for i, o, voters in _ordered(poll, rows):
-        radio = "" if poll["closed"] else f'<input type="radio" name="choice" value="{i}" id="o{i}" required> '
+        radio = "" if not can_vote else f'<input type="radio" name="choice" value="{i}" id="o{i}" required> '
         who = f'<br><small>{e(", ".join(voters))}</small>' if voters else ""
         items.append(f'<li><label for="o{i}">{radio}<strong>{e(o["name"])}</strong> · {o["walk_min"]:.0f} min walk · '
                      f'{len(voters)} vote{"s" * (len(voters) != 1)}</label> <a href="{e(o["url"])}">map</a>'
                      f'<br><small>{e(o["blurb"])}</small>{who}</li>')
-    form = ("<p><strong>Poll closed.</strong></p>" if poll["closed"] else
-            '<p><label for="voter">Your name</label><br><input id="voter" name="voter" maxlength="80" required autocomplete="name"></p>'
+    if poll["closed"]:
+        form = "<p><strong>Poll closed.</strong></p>"
+    elif invited:
+        form = (f'<input type="hidden" name="voter" value="{e(voter)}"><input type="hidden" name="t" value="{e(token)}">'
+                f"<p><button>Vote as {e(voter)}</button> <small>Voting again changes yours.</small></p>")
+    elif not can_vote:
+        form = "<p><strong>This poll is invite-only.</strong> Open the personal link you were sent to vote.</p>"
+    else:
+        form = ('<p><label for="voter">Your name</label><br><input id="voter" name="voter" maxlength="80" required autocomplete="name"></p>'
             "<p><button>Vote</button> <small>One vote each; voting again changes yours.</small></p>")
     note = f'<p role="status"><strong>{e(message)}</strong></p>' if message else ""
     return f"""<!doctype html>

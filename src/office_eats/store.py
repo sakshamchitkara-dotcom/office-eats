@@ -4,6 +4,8 @@ Kept apart from the API cache so `office-eats clear-cache` never wipes votes.
 """
 from __future__ import annotations
 
+import hashlib
+import hmac
 import json
 import os
 import secrets
@@ -47,6 +49,8 @@ class Store:
         self.db.execute(CREATE_PICKS)
         self.db.execute(CREATE_MEMBERS)
         self.db.execute(CREATE_FEEDBACK)
+        if "invite_key" not in {r[1] for r in self.db.execute("PRAGMA table_info(polls)")}:  # added in 0.4
+            self.db.execute("ALTER TABLE polls ADD COLUMN invite_key TEXT")
 
     # --- polls -------------------------------------------------------------------------------------------------
     def create_poll(self, title: str, options: list[dict]) -> str:
@@ -84,6 +88,29 @@ class Store:
             voters[choice].append(voter)
         order = sorted(range(len(voters)), key=lambda i: -len(voters[i]))
         return p, [(p["options"][i], voters[i]) for i in order]
+
+    # --- signed per-voter links for the web page -----------------------------------------------------------
+    def invite_token(self, poll_id: str, voter: str) -> str:
+        """Token for voter's personal link. The first call gives the poll a secret key, which makes the web page
+        invite-only: from then on it only accepts votes that carry a valid token, under the name the token was made for."""
+        self.poll(poll_id)
+        with self.lock, self.db:
+            self.db.execute("UPDATE polls SET invite_key = ? WHERE id = ? AND invite_key IS NULL", (secrets.token_hex(16), poll_id))
+        return self._token(poll_id, voter.strip()[:80])
+
+    def invite_only(self, poll_id: str) -> bool:
+        return self._key(poll_id) is not None
+
+    def check_token(self, poll_id: str, voter: str, token: str) -> bool:
+        return self._key(poll_id) is not None and hmac.compare_digest(self._token(poll_id, voter.strip()[:80]), token)
+
+    def _key(self, poll_id: str) -> str | None:
+        row = self.db.execute("SELECT invite_key FROM polls WHERE id = ?", (poll_id,)).fetchone()
+        return row[0] if row else None
+
+    def _token(self, poll_id: str, voter: str) -> str:
+        key = self._key(poll_id)
+        return hmac.new(key.encode(), f"{poll_id}:{voter}".encode(), hashlib.sha256).hexdigest()[:32]
 
     def close_poll(self, poll_id: str) -> None:
         self.poll(poll_id)

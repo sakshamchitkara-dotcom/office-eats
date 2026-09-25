@@ -4,8 +4,10 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 import re
 import sys
+import urllib.parse
 from pathlib import Path
 
 from . import report
@@ -134,6 +136,13 @@ def cmd_poll(a: argparse.Namespace) -> int:
         print(f"created poll {poll_id}", file=sys.stderr)
     else:
         poll_id = a.poll_id
+        if a.poll_cmd == "invite":
+            base = a.base_url.rstrip("/")
+            for name in a.voters:
+                q = urllib.parse.urlencode({"voter": name.strip()[:80], "t": store.invite_token(poll_id, name)})
+                print(f"{name}\t{base}/poll/{poll_id}?{q}")
+            print(f"poll {poll_id} is now invite-only on the web page; CLI and Slack votes still work", file=sys.stderr)
+            return 0
         if a.poll_cmd == "vote":
             store.vote(poll_id, a.voter, a.choice - 1)
         elif a.poll_cmd == "close":
@@ -250,6 +259,11 @@ def build_parser() -> argparse.ArgumentParser:
     pv.add_argument("poll_id")
     pv.add_argument("voter")
     pv.add_argument("choice", type=int, help="option number, starting at 1")
+    pi = psub.add_parser("invite", help="print a signed personal voting link per person; the web page then accepts only those")
+    pi.add_argument("poll_id")
+    pi.add_argument("voters", nargs="+", metavar="NAME")
+    pi.add_argument("--base-url", default=os.environ.get("OFFICE_EATS_BASE_URL", "http://127.0.0.1:8080"),
+                    help="where `serve` is reachable (default: $OFFICE_EATS_BASE_URL or http://127.0.0.1:8080)")
     for name, help_ in (("tally", "show the current tally"), ("close", "close the poll and show the result")):
         psub.add_parser(name, help=help_).add_argument("poll_id")
     for p_ in psub.choices.values():
