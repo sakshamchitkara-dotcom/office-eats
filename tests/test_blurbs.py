@@ -15,3 +15,8 @@ def test_catering_blurb_and_apply():
     items = [Scored(v, 70, [])]
     assert apply_deterministic(items, "catering") == "deterministic"
     assert items[0].blurb.startswith("Mid-priced restaurant, 12 min") and "does catering" in items[0].blurb
+
+
+def test_diet_names_are_readable():
+    v = Venue("node/1", "X", 0, 0, diets={"gluten_free"}, walk_min=2)
+    assert "gluten-free options" in deterministic_blurb(Scored(v, 50, []), "lunch")
